@@ -1,0 +1,25 @@
+{
+  "name": "UnaKotse — Your First Car, Made Simple",
+  "short_name": "UnaKotse",
+  "description": "Compare car brands, prices, and specs in one place — built for first-time Filipino car buyers.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#EEF1F8",
+  "theme_color": "#11317F",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

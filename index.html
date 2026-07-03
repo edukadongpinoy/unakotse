@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>UnaKotse — Your First Car, Made Simple</title>
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#11317F" />
+<link rel="icon" type="image/png" href="icon-192.png" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E1B33;
+    --blue:#1A45C9;
+    --blue-deep:#11317F;
+    --amber:#F6A721;
+    --amber-deep:#D98209;
+    --bg:#EEF1F8;
+    --card:#FFFFFF;
+    --line:#E4E8F2;
+    --muted:#5B6781;
+    --text:#16203A;
+    --good:#138A5E;
+    --shadow:0 1px 2px rgba(14,27,51,.06), 0 8px 24px rgba(14,27,51,.08);
+    --display:'Space Grotesk', sans-serif;
+    --body:'Inter', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:var(--body);
+    background:radial-gradient(1200px 600px at 50% -10%, #DDE6FF 0%, transparent 60%), var(--bg);
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+    display:flex; justify-content:center;
+  }
+  .app{
+    width:100%; max-width:440px; min-height:100vh;
+    background:var(--bg); position:relative; overflow-x:hidden;
+    box-shadow:0 0 60px rgba(14,27,51,.10);
+  }
+
+  .topbar{
+    position:sticky; top:0; z-index:20;
+    background:linear-gradient(135deg, var(--blue) 0%, var(--blue-deep) 100%);
+    color:#fff; padding:18px 20px 22px; border-radius:0 0 22px 22px;
+  }
+  .brandrow{display:flex; align-items:center; gap:10px;}
+  .logo-badge{
+    width:34px; height:34px; border-radius:9px; background:var(--amber);
+    display:grid; place-items:center; box-shadow:0 4px 10px rgba(217,130,9,.4);
+  }
+  .logo-badge svg{width:20px; height:20px;}
+  .wordmark{font-family:var(--display); font-weight:700; font-size:19px; letter-spacing:-.4px;}
+  .wordmark span{color:var(--amber);}
+  .tagline{font-size:12.5px; opacity:.85; margin-top:8px; line-height:1.4; max-width:300px;}
+  .search{
+    margin-top:16px; display:flex; align-items:center; gap:9px;
+    background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.22);
+    border-radius:13px; padding:11px 13px;
+  }
+  .search svg{width:17px; height:17px; opacity:.85; flex-shrink:0;}
+  .search input{
+    background:transparent; border:none; outline:none;
+    color:#fff; font-family:var(--body); font-size:14px; width:100%;
+  }
+  .search input::placeholder{color:rgba(255,255,255,.7);}
+  .datasource{margin-top:10px; font-size:10.5px; opacity:.7; letter-spacing:.3px;}
+
+  .screen{padding:18px 16px 90px; display:none;}
+  .screen.active{display:block; animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+
+  .eyebrow{font-family:var(--display); font-weight:600; font-size:11px; letter-spacing:1.4px; text-transform:uppercase; color:var(--muted);}
+  .h-title{font-family:var(--display); font-weight:700; font-size:20px; letter-spacing:-.4px; margin-top:3px;}
+
+  .budget{
+    margin:14px 0 6px; background:var(--card); border:1px solid var(--line);
+    border-radius:16px; padding:14px 15px; box-shadow:var(--shadow);
+  }
+  .budget-top{display:flex; justify-content:space-between; align-items:baseline;}
+  .budget-label{font-size:12.5px; color:var(--muted); font-weight:500;}
+  .budget-val{font-family:var(--display); font-weight:700; font-size:16px; color:var(--blue);}
+  .budget input[type=range]{
+    -webkit-appearance:none; appearance:none; width:100%; height:6px;
+    border-radius:6px; margin-top:12px;
+    background:linear-gradient(90deg, var(--blue), var(--amber));
+  }
+  .budget input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:22px; height:22px; border-radius:50%;
+    background:#fff; border:3px solid var(--blue); cursor:pointer;
+    box-shadow:0 2px 6px rgba(14,27,51,.25);
+  }
+
+  .chips{
+    display:flex; gap:8px; overflow-x:auto; padding:12px 2px 4px;
+    scrollbar-width:none;
+  }
+  .chips::-webkit-scrollbar{display:none;}
+  .fchip{
+    flex-shrink:0; border:1px solid var(--line); background:var(--card);
+    color:var(--muted); font-family:var(--body); font-weight:600; font-size:12.5px;
+    padding:8px 14px; border-radius:20px; cursor:pointer;
+  }
+  .fchip.on{background:var(--ink); color:#fff; border-color:var(--ink);}
+
+  .brand-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px;}
+  .brand-card{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:16px 14px; cursor:pointer; box-shadow:var(--shadow);
+    transition:transform .12s ease;
+  }
+  .brand-card:active{transform:scale(.97);}
+  .brand-mark{
+    width:46px; height:46px; border-radius:12px; display:grid; place-items:center;
+    font-family:var(--display); font-weight:700; font-size:19px; color:#fff;
+  }
+  .brand-name{font-family:var(--display); font-weight:600; font-size:15px; margin-top:11px;}
+  .brand-meta{font-size:11.5px; color:var(--muted); margin-top:2px;}
+
+  .backbtn{
+    display:inline-flex; align-items:center; gap:6px; background:none; border:none;
+    cursor:pointer; color:var(--blue); font-family:var(--body); font-weight:600;
+    font-size:13.5px; padding:2px 0; margin-bottom:14px;
+  }
+  .backbtn svg{width:16px; height:16px;}
+
+  .car-card{
+    background:var(--card); border:1px solid var(--line); border-radius:18px;
+    overflow:hidden; box-shadow:var(--shadow); cursor:pointer; margin-bottom:13px;
+    transition:transform .12s ease;
+  }
+  .car-card:active{transform:scale(.985);}
+  .car-photo{height:104px; display:grid; place-items:center; position:relative;}
+  .car-photo svg{width:118px; opacity:.92;}
+  .car-tag{
+    position:absolute; top:10px; left:10px; background:rgba(255,255,255,.92);
+    color:var(--ink); font-size:10.5px; font-weight:600; padding:4px 8px;
+    border-radius:7px; letter-spacing:.3px;
+  }
+  .car-body{padding:13px 15px 15px;}
+  .car-name{font-family:var(--display); font-weight:600; font-size:16px;}
+  .car-trim{font-size:12px; color:var(--muted); margin-top:1px;}
+  .car-foot{display:flex; justify-content:space-between; align-items:flex-end; margin-top:12px;}
+  .srp-label{font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.6px;}
+  .srp-val{font-family:var(--display); font-weight:700; font-size:18px; margin-top:1px;}
+  .chiprow{display:flex; gap:6px;}
+  .chip{
+    font-size:11px; font-weight:600; color:var(--blue-deep);
+    background:#E8EDFF; padding:5px 9px; border-radius:8px;
+  }
+
+  .detail-hero{
+    border-radius:20px; height:170px; display:grid; place-items:center;
+    position:relative; margin-bottom:16px; box-shadow:var(--shadow);
+  }
+  .detail-hero svg{width:200px;}
+  .detail-name{font-family:var(--display); font-weight:700; font-size:23px; letter-spacing:-.5px;}
+  .detail-trim{font-size:13px; color:var(--muted); margin-top:2px;}
+
+  .advice{
+    margin-top:14px; background:linear-gradient(135deg, #103A2C, #145C41);
+    color:#EAF7F0; border-radius:16px; padding:15px 16px; box-shadow:var(--shadow);
+  }
+  .advice-h{
+    font-family:var(--display); font-weight:600; font-size:12px;
+    letter-spacing:1.2px; text-transform:uppercase; color:#8FD9B6;
+    display:flex; align-items:center; gap:7px;
+  }
+  .advice-p{font-size:13.5px; line-height:1.55; margin-top:7px;}
+
+  .avoid{
+    margin-top:10px; background:#FFF3E0; border:1px solid #F1D6A3;
+    border-radius:14px; padding:12px 14px;
+  }
+  .avoid-h{
+    font-family:var(--display); font-weight:600; font-size:11px;
+    letter-spacing:1.2px; text-transform:uppercase; color:#A8690B;
+  }
+  .avoid-p{font-size:13px; color:#7A5616; line-height:1.5; margin-top:5px;}
+
+  .price-box{
+    background:var(--ink); color:#fff; border-radius:18px;
+    padding:17px 18px; margin:16px 0; box-shadow:var(--shadow); position:relative;
+  }
+  .price-box .srp-label{color:rgba(255,255,255,.65);}
+  .price-big{font-family:var(--display); font-weight:700; font-size:30px; letter-spacing:-1px; margin-top:2px;}
+  .verify-pill{
+    display:inline-block; margin-top:9px; font-size:10.5px; font-weight:600;
+    padding:4px 9px; border-radius:8px;
+  }
+  .verify-pill.warn{background:#5C4708; color:#FFD98A;}
+  .verify-pill.ok{background:#0E4D36; color:#8FD9B6;}
+  .monthly{
+    margin-top:13px; padding-top:13px; border-top:1px solid rgba(255,255,255,.16);
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .monthly-l{font-size:12px; color:rgba(255,255,255,.75);}
+  .monthly-v{font-family:var(--display); font-weight:600; font-size:15px; color:var(--amber);}
+
+  .sect-h{
+    font-family:var(--display); font-weight:600; font-size:12px;
+    letter-spacing:1.2px; text-transform:uppercase; color:var(--muted);
+    margin:18px 0 10px;
+  }
+
+  .spec-grid{display:grid; grid-template-columns:1fr 1fr; gap:11px;}
+  .spec{
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:13px 14px; box-shadow:var(--shadow);
+  }
+  .spec-k{font-size:11px; color:var(--muted);}
+  .spec-v{font-family:var(--display); font-weight:600; font-size:15px; margin-top:5px;}
+
+  .safety{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:15px; box-shadow:var(--shadow);
+  }
+  .safety-top{display:flex; justify-content:space-between; align-items:center;}
+  .safety-air{font-family:var(--display); font-weight:700; font-size:19px;}
+  .safety-air small{font-family:var(--body); font-weight:500; font-size:12px; color:var(--muted);}
+  .lvl{font-size:11px; font-weight:700; padding:5px 11px; border-radius:9px; letter-spacing:.4px;}
+  .lvl.Basic{background:#F0F2F7; color:#5B6781;}
+  .lvl.Good{background:#E8EDFF; color:#11317F;}
+  .lvl.Advanced{background:#DFF5EA; color:#0E6B47;}
+  .feat-list{margin-top:12px; display:grid; grid-template-columns:1fr 1fr; gap:7px 12px;}
+  .feat{font-size:12px; color:var(--text); display:flex; align-items:center; gap:6px;}
+  .feat b{font-weight:700; width:14px; text-align:center;}
+  .feat.yes b{color:var(--good);}
+  .feat.no{color:var(--muted);}
+  .feat.no b{color:#C24141;}
+
+  /* ---------- v5: buyer score ---------- */
+  .score-box{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:15px; box-shadow:var(--shadow);}
+  .score-head{display:flex; justify-content:space-between; align-items:center;}
+  .score-big{font-family:var(--display); font-weight:700; font-size:26px;}
+  .score-big small{font-size:13px; color:var(--muted); font-weight:500;}
+  .score-note{font-size:12px; color:var(--muted); margin-top:10px; line-height:1.5;}
+  .sbar{display:flex; align-items:center; gap:8px; margin-top:8px;}
+  .sbar-l{font-size:11.5px; color:var(--muted); width:118px; flex-shrink:0;}
+  .sbar-track{flex:1; height:7px; border-radius:5px; background:#EDF0F7; overflow:hidden;}
+  .sbar-fill{display:block; height:100%; border-radius:5px; background:linear-gradient(90deg, var(--blue), var(--amber));}
+  .sbar-v{font-size:11.5px; font-weight:700; width:26px; text-align:right;}
+
+  /* ---------- v5: calculator ---------- */
+  .calc{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:15px; box-shadow:var(--shadow);}
+  .calc-row{margin-top:12px;}
+  .calc-l{font-size:11.5px; color:var(--muted); margin-bottom:6px;}
+  .seg{display:flex; gap:6px; flex-wrap:wrap;}
+  .seg button{border:1px solid var(--line); background:#F4F6FB; color:var(--muted); font-family:var(--body); font-weight:600; font-size:12px; padding:7px 12px; border-radius:9px; cursor:pointer;}
+  .seg button.on{background:var(--ink); color:#fff; border-color:var(--ink);}
+  .calc input[type=number]{width:100%; border:1px solid var(--line); border-radius:10px; padding:9px 11px; font-family:var(--body); font-size:14px; outline:none; background:#F9FAFD;}
+  .calc-out{margin-top:14px; background:#0E1B33; color:#fff; border-radius:13px; padding:13px 14px;}
+  .co-row{display:flex; justify-content:space-between; font-size:12.5px; padding:3px 0; color:rgba(255,255,255,.8);}
+  .co-row b{color:#fff; font-family:var(--display);}
+  .co-big{display:flex; justify-content:space-between; align-items:baseline; border-top:1px solid rgba(255,255,255,.15); margin-top:8px; padding-top:9px;}
+  .co-big span{font-size:12px; color:rgba(255,255,255,.75);}
+  .co-big b{font-family:var(--display); font-size:18px; color:var(--amber);}
+  .calc-note{font-size:10.5px; color:var(--muted); margin-top:9px; line-height:1.45;}
+
+  /* ---------- v5: trims & rivals ---------- */
+  .link-row{display:flex; justify-content:space-between; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:13px; padding:12px 14px; box-shadow:var(--shadow); margin-bottom:9px; cursor:pointer;}
+  .lr-name{font-size:13px; font-weight:600;}
+  .lr-sub{font-size:11px; color:var(--muted); margin-top:1px;}
+  .lr-price{font-family:var(--display); font-weight:700; font-size:13.5px; text-align:right;}
+  .lr-diff{font-size:10.5px; font-weight:600; margin-top:1px; text-align:right;}
+  .lr-diff.up{color:#C24141;}
+  .lr-diff.down{color:var(--good);}
+
+  /* ---------- v5: collapsibles & badges ---------- */
+  details.acc{background:var(--card); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); margin-bottom:10px; overflow:hidden;}
+  details.acc summary{cursor:pointer; list-style:none; padding:13px 15px; font-family:var(--display); font-weight:600; font-size:13.5px; display:flex; justify-content:space-between; align-items:center;}
+  details.acc summary::-webkit-details-marker{display:none;}
+  details.acc summary::after{content:"+"; color:var(--muted); font-size:17px;}
+  details.acc[open] summary::after{content:"–";}
+  .acc-body{padding:0 15px 13px; font-size:12.5px; color:var(--text); line-height:1.65;}
+  .acc-body ul{margin-left:16px;}
+  .badge-ncap{display:inline-block; margin-top:10px; font-size:11px; font-weight:700; background:#DFF5EA; color:#0E6B47; padding:5px 10px; border-radius:8px;}
+  .fam-label{font-size:11px; font-weight:700; padding:5px 11px; border-radius:9px; background:#E8EDFF; color:#11317F;}
+
+  /* ---------- v5: photo support ---------- */
+  .car-photo{overflow:hidden;}
+  .detail-hero{overflow:hidden;}
+  .hero-img, .card-img{width:100%; height:100%; object-fit:cover; display:block;}
+
+  .where{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:15px; box-shadow:var(--shadow); margin-bottom:14px;
+  }
+  .where-h{font-family:var(--display); font-weight:600; font-size:14px;}
+  .where-p{font-size:13px; color:var(--muted); margin-top:7px; line-height:1.5;}
+  .where-link{display:inline-block; margin-top:11px; color:var(--blue); font-weight:600; font-size:13px; text-decoration:none;}
+
+  .tip{
+    background:#FFF6E6; border:1px solid #F4DCA6; border-radius:14px;
+    padding:13px 14px; font-size:12.5px; color:#7A5616; line-height:1.5;
+  }
+  .tip b{color:#5E410F;}
+  .disclaimer{margin-top:18px; font-size:11px; color:var(--muted); line-height:1.5; text-align:center;}
+  .empty{text-align:center; color:var(--muted); padding:40px 20px; font-size:14px; grid-column:1/3;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brandrow">
+      <div class="logo-badge">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M3 13l1.5-4.5A2 2 0 016.4 7h11.2a2 2 0 011.9 1.5L21 13v5a1 1 0 01-1 1h-1a1 1 0 01-1-1v-1H6v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-5z" fill="#0E1B33"/><circle cx="7" cy="16" r="1.4" fill="#fff"/><circle cx="17" cy="16" r="1.4" fill="#fff"/></svg>
+      </div>
+      <div class="wordmark">Una<span>Kotse</span></div>
+    </div>
+    <p class="tagline">Your first car is a big step. Compare brands, prices, and specs in one place — built for first-time Filipino buyers.</p>
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+      <input id="searchInput" type="text" placeholder="Search a model, e.g. Vios, Xpander…" />
+    </div>
+    <div class="datasource" id="dataSource">Loading data…</div>
+  </header>
+
+  <section id="screen-home" class="screen active">
+    <div class="budget">
+      <div class="budget-top">
+        <span class="budget-label">Show cars up to</span>
+        <span class="budget-val" id="budgetVal">₱3,000,000</span>
+      </div>
+      <input type="range" id="budgetRange" min="600000" max="3000000" step="50000" value="3000000" />
+    </div>
+
+    <div class="chips" id="bodyChips"></div>
+
+    <p class="eyebrow" style="margin-top:12px;">Browse by brand</p>
+    <h2 class="h-title">Pick a brand to start</h2>
+    <div class="brand-grid" id="brandGrid"></div>
+  </section>
+
+  <section id="screen-brand" class="screen">
+    <button class="backbtn" onclick="goHome()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg>
+      All brands
+    </button>
+    <p class="eyebrow" id="brandEyebrow">Brand</p>
+    <h2 class="h-title" id="brandTitle">Models</h2>
+    <div id="carList" style="margin-top:14px;"></div>
+  </section>
+
+  <section id="screen-car" class="screen">
+    <button class="backbtn" id="carBack">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg>
+      Back
+    </button>
+    <div id="carDetail"></div>
+  </section>
+
+</div>
+
+<!-- Fallback database (same format as your Google Sheet). -->
+<script type="text/csv" id="fallbackCSV">brand,brandColor,model,trim,modelYear,segment,body,srp,priceAsOfDate,seats,clearanceMm,transmission,fuel,engine,fuelEconCity,fuelEconHwy,warrantyYears,warrantyKm,airbags,stabilityControl,reverseCamera,parkingSensors,isofix,appleCarPlay,androidAuto,safetyLevel,bestFor,avoidIf,advice,where,link,imageUrl,ncap
+Toyota,#E11B22,Wigo,1.0 E MT,2026,City car,Hatchback,615000,Jul 2026,5,145,Manual,Gasoline,1.0L 3-cyl,14,20,3,100000,2,Yes,No,No,Yes,No,No,Basic,Absolute-budget first car,You want an automatic or modern features,"Perfect if you want the cheapest brand-new Toyota — bare-bones but honest, backed by the country's biggest dealer network.",Toyota dealerships nationwide,https://toyota.com.ph,,
+Toyota,#E11B22,Wigo,1.0 G CVT,2026,City car,Hatchback,735000,Jul 2026,5,145,Automatic,Gasoline,1.0L 3-cyl,14,20,3,100000,2,Yes,Yes,No,Yes,Yes,Yes,Basic,First-time city commuters,You often drive out of town fully loaded,"Perfect if this is your very first car: easy in traffic, cheap to fuel, and Toyota resale value protects your money when you upgrade.",Toyota dealerships nationwide,https://toyota.com.ph,,
+Toyota,#E11B22,Vios,1.3 J MT,2026,Subcompact sedan,Sedan,738000,Jul 2026,5,133,Manual,Gasoline,1.3L 4-cyl,12,18,3,100000,3,Yes,No,No,Yes,No,No,Basic,Budget buyers who insist on a sedan,You want comfort features or an automatic,A good choice if you want the legendary Vios badge at the lowest entry price and don't mind shifting gears yourself.,Toyota dealerships nationwide,https://toyota.com.ph,,
+Toyota,#E11B22,Vios,1.3 XE CVT,2026,Subcompact sedan,Sedan,780000,Jul 2026,5,133,Automatic,Gasoline,1.3L 4-cyl,12,18,3,100000,3,Yes,No,No,Yes,Yes,Yes,Basic,The cheapest automatic Vios,You want the camera and sensors — XLE has them,Perfect if you just want an automatic Vios at the lowest price — the sweet spot for many first-time buyers.,Toyota dealerships nationwide,https://toyota.com.ph,,
+Toyota,#E11B22,Vios,1.3 XLE CVT,2026,Subcompact sedan,Sedan,908000,Jul 2026,5,133,Automatic,Gasoline,1.3L 4-cyl,12,18,3,100000,3,Yes,Yes,Yes,Yes,Yes,Yes,Good,The classic safe first sedan,You need clearance for flood-prone streets,"A good choice if you want the default first sedan of the Philippines with the full convenience kit — parts everywhere, resale best-in-class.",Toyota dealerships nationwide,https://toyota.com.ph,,
+Toyota,#E11B22,Corolla Altis,1.6 G CVT,2026,Compact sedan,Sedan,1213000,Jul 2026,5,130,Automatic,Gasoline,1.6L 4-cyl,12,16,3,100000,7,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,Grown-up sedan with full safety,The Vios covers your needs for much less,"A good choice if you want a roomier, quieter sedan with Toyota Safety Sense as standard — a hybrid version also exists.",Toyota dealerships nationwide,https://toyota.com.ph,,
+Toyota,#E11B22,Raize,1.2 E MT,2026,Subcompact SUV,SUV,757000,Jul 2026,5,200,Manual,Gasoline,1.2L 3-cyl,15,21,3,100000,2,Yes,No,No,Yes,No,No,Basic,Cheapest way into an SUV shape,You want an automatic in city traffic,Perfect if you want SUV height and 200 mm clearance at the absolute lowest price — just know it's a manual.,Toyota dealerships nationwide,https://toyota.com.ph,,
+Toyota,#E11B22,Raize,1.2 G CVT,2026,Subcompact SUV,SUV,921000,SAMPLE,5,200,Automatic,Gasoline,1.2L 3-cyl,15,21,3,100000,2,Yes,Yes,No,Yes,Yes,Yes,Basic,SUV looks on a hatchback budget,You need serious cargo space,Perfect if you want the higher seating position for rough or flood-prone streets without leaving hatchback money.,Toyota dealerships nationwide,https://toyota.com.ph,,
+Toyota,#E11B22,Raize,1.0 Turbo CVT,2026,Subcompact SUV,SUV,1069000,Jul 2026,5,200,Automatic,Gasoline (Turbo),1.0L 3-cyl turbo,13,19,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,Small SUV with the full safety kit,You rarely leave the city — the E saves money,A good choice if you want the Raize with more pull and six airbags — the safety upgrade alone can justify the gap.,Toyota dealerships nationwide,https://toyota.com.ph,,
+Toyota,#E11B22,Rush,1.5 G AT,2026,7-seat SUV,SUV,1208000,Jul 2026,7,220,Automatic,Gasoline,1.5L 4-cyl,11,16,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,7-seat SUV toughness on a budget,You want car-like ride comfort — it rides firm,"A good choice if you want a 7-seat SUV-style hauler with high clearance — confirm availability with your dealer, as the Rush has moved in and out of the lineup.",Toyota dealerships nationwide,https://toyota.com.ph,,
+Toyota,#E11B22,Veloz,1.5 G CVT,2026,7-seat crossover,SUV,1104000,Jul 2026,7,205,Automatic,Gasoline,1.5L 4-cyl,12,18,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,Modern 7-seater at entry price,You want the driver-assist tech — the V has it,"Perfect if you want the modern 7-seat crossover — practical, efficient, and easy to resell.",Toyota dealerships nationwide,https://toyota.com.ph,,
+Toyota,#E11B22,Veloz,1.5 V CVT,2026,7-seat crossover,SUV,1262000,Jul 2026,7,205,Automatic,Gasoline,1.5L 4-cyl,12,18,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,Family crossover with safety tech,Budget is tight — the G covers the essentials,A good choice if you want Toyota Safety Sense watching over the whole family — rare at this price in a 7-seater.,Toyota dealerships nationwide,https://toyota.com.ph,,
+Toyota,#E11B22,Avanza,1.3 E MT,2026,Small MPV,MPV,844000,Jul 2026,7,195,Manual,Gasoline,1.3L 4-cyl,12,17,3,100000,2,Yes,No,No,Yes,No,No,Basic,Cheapest Toyota 7-seater,You sit in daily traffic — get the CVT,Perfect if you need 7 seats at the lowest possible Toyota price and can live with a manual.,Toyota dealerships nationwide,https://toyota.com.ph,,
+Toyota,#E11B22,Avanza,1.5 G CVT,2026,Small MPV,MPV,1071000,Jul 2026,7,195,Automatic,Gasoline,1.5L 4-cyl,12,17,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,Young families on a ₱1M budget,You mostly drive solo — a 5-seater is cheaper to run,Perfect if you need 7 seats with Toyota dependability around the ₱1M mark — the practical default for growing families.,Toyota dealerships nationwide,https://toyota.com.ph,,
+Toyota,#E11B22,Innova,2.8 E Diesel AT,2026,MPV,MPV,1715000,SAMPLE,7,185,Automatic,Diesel,2.8L 4-cyl turbodiesel,10,14,3,100000,3,Yes,Yes,Yes,Yes,Yes,Yes,Good,Big families and province road-trippers,City-only driving — the diesel shines on long runs,A good choice if your family regularly travels far: the diesel Innova is the long-haul workhorse half the country swears by.,Toyota dealerships nationwide,https://toyota.com.ph,,
+Toyota,#E11B22,Innova Zenix,2.0 G CVT,2026,MPV,MPV,2059000,SAMPLE,7,185,Automatic,Gasoline,2.0L 4-cyl,10,14,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,The premium modern Innova,The classic diesel Innova is the value pick,"Perfect if you want the Innova reinvented — car-like comfort, modern tech, and a hybrid version above it.",Toyota dealerships nationwide,https://toyota.com.ph,,
+Toyota,#E11B22,Hilux,Cargo 2.4 MT,2026,Pickup,Pickup,891000,Jul 2026,3,216,Manual,Diesel,2.4L 4-cyl turbodiesel,9,13,3,100000,2,Yes,No,No,No,No,No,Basic,Pure business hauling,You need a family vehicle too — this is a work truck,Perfect if this purchase is for the business first — the cheapest way into a brand-new diesel Toyota truck.,Toyota dealerships nationwide,https://toyota.com.ph,,
+Toyota,#E11B22,Hilux,2.4 E 4x2 MT,2026,Pickup,Pickup,1270000,SAMPLE,5,279,Manual,Diesel,2.4L 4-cyl turbodiesel,9,14,3,100000,3,Yes,No,No,Yes,No,No,Basic,Work-plus-family pickup on a budget,You want automatic comfort — see the G,A good choice if you want the country's most trusted pickup nameplate at its most affordable passenger trim.,Toyota dealerships nationwide,https://toyota.com.ph,,
+Toyota,#E11B22,Hilux,2.4 G 4x2 AT,2026,Pickup,Pickup,1480000,SAMPLE,5,279,Automatic,Diesel,2.4L 4-cyl turbodiesel,9,14,3,100000,3,Yes,Yes,Yes,Yes,Yes,Yes,Good,Comfortable daily-driven Hilux,Most driving is tight city parking,Perfect if you want the Hilux as a do-everything family-and-work vehicle with automatic ease.,Toyota dealerships nationwide,https://toyota.com.ph,,
+Toyota,#E11B22,Hilux,Conquest 2.4 4x2 AT,2026,Pickup,Pickup,1690000,SAMPLE,5,293,Automatic,Diesel,2.4L 4-cyl turbodiesel,9,14,3,100000,7,Yes,Yes,Yes,Yes,Yes,Yes,Good,The lifestyle pickup statement,You don't need the rugged styling premium,A good choice if you want the tough-truck look and the fullest safety kit in the 4x2 Hilux range.,Toyota dealerships nationwide,https://toyota.com.ph,,
+Toyota,#E11B22,Yaris Cross,1.5 G CVT,2026,Subcompact SUV,SUV,1406000,SAMPLE,5,170,Automatic,Gasoline,1.5L 4-cyl,14,19,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,Refined small crossover,You want max clearance — Raize sits higher,Perfect if you want a more premium small Toyota crossover; a hybrid version also exists if fuel savings matter most.,Toyota dealerships nationwide,https://toyota.com.ph,,
+Toyota,#E11B22,Corolla Cross,1.8 G CVT,2026,Compact SUV,SUV,1673000,SAMPLE,5,161,Automatic,Gasoline,1.8L 4-cyl,12,16,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,Comfort-first compact crossover,You need flood clearance — 161 mm is car-like,"A good choice if you want Corolla refinement in crossover form — smooth, quiet, and easy to live with.",Toyota dealerships nationwide,https://toyota.com.ph,,
+Toyota,#E11B22,Fortuner,2.4 G 4x2 MT,2026,Midsize SUV,SUV,1775000,Jul 2026,7,225,Manual,Diesel,2.4L 4-cyl turbodiesel,9,13,3,100000,3,Yes,Yes,Yes,Yes,Yes,Yes,Good,The aspirational family SUV,A manual 7-seater doesn't fit city family duty,Perfect if the Fortuner has always been the dream — this is its entry door; budget more for the AT variants.,Toyota dealerships nationwide,https://toyota.com.ph,,
+Mitsubishi,#E60012,Mirage,GLX MT,2026,City car,Hatchback,720000,Jul 2026,5,170,Manual,Gasoline,1.2L 3-cyl,17,23,3,100000,2,No,No,No,Yes,No,No,Basic,Fuel-economy maximalists,You want an automatic or extra safety tech,"A good choice if fuel cost is your #1 worry — famously light on gas, and the manual keeps running costs down.",Mitsubishi Motors dealers nationwide,https://mitsubishi-motors.com.ph,,
+Mitsubishi,#E60012,Mirage,GLS CVT,2026,City car,Hatchback,781000,Jul 2026,5,170,Automatic,Gasoline,1.2L 3-cyl,17,23,3,100000,2,No,Yes,No,Yes,Yes,Yes,Basic,Automatic sipper for city life,You value cabin quietness — rivals are more refined,Perfect if you want the Mirage's legendary fuel economy without the clutch work.,Mitsubishi Motors dealers nationwide,https://mitsubishi-motors.com.ph,,
+Mitsubishi,#E60012,Mirage G4,GLX CVT,2026,Subcompact sedan,Sedan,883000,SAMPLE,5,170,Automatic,Gasoline,1.2L 3-cyl,16,22,3,100000,2,No,Yes,No,Yes,Yes,Yes,Basic,Budget sedan buyers who want automatic,You want more power for full-load highway runs,Perfect if you want a sedan on a tight budget without giving up an automatic — a longtime first-timer favorite.,Mitsubishi Motors dealers nationwide,https://mitsubishi-motors.com.ph,,
+Mitsubishi,#E60012,Mirage G4,GLS CVT,2026,Subcompact sedan,Sedan,943000,SAMPLE,5,170,Automatic,Gasoline,1.2L 3-cyl,16,22,3,100000,2,No,Yes,Yes,Yes,Yes,Yes,Basic,The full-kit budget sedan,The GLX already covers the essentials,A good choice if you want the G4 with every comfort box ticked while staying under ₱1M.,Mitsubishi Motors dealers nationwide,https://mitsubishi-motors.com.ph,,
+Mitsubishi,#E60012,Xpander,GLX MT,2026,Small MPV,MPV,1068000,Jul 2026,7,225,Manual,Gasoline,1.5L 4-cyl,11,16,3,100000,2,Yes,Yes,No,Yes,Yes,Yes,Basic,Family buyers saving on the entry trim,You sit in heavy traffic daily — get the AT,A good choice if you want the country's best-selling family car at its lowest entry price and don't mind a manual.,Mitsubishi Motors dealers nationwide,https://mitsubishi-motors.com.ph,,
+Mitsubishi,#E60012,Xpander,GLX AT,2026,Small MPV,MPV,1128000,Jul 2026,7,225,Automatic,Gasoline,1.5L 4-cyl,11,16,3,100000,2,Yes,Yes,No,Yes,Yes,Yes,Basic,The automatic Xpander sweet spot,You want the 360 camera and yaw control — see GLS,Perfect if you want the best-selling MPV with automatic ease at the lowest price for it.,Mitsubishi Motors dealers nationwide,https://mitsubishi-motors.com.ph,,
+Mitsubishi,#E60012,Xpander,GLS AT,2026,Small MPV,MPV,1216000,Jul 2026,7,225,Automatic,Gasoline,1.5L 4-cyl,11,16,3,100000,2,Yes,Yes,Yes,Yes,Yes,Yes,Good,The whole-family daily driver,You never carry more than 2 passengers,Perfect if the whole family rides with you — the 2025 best-seller with a 360 camera and Active Yaw Control on this trim.,Mitsubishi Motors dealers nationwide,https://mitsubishi-motors.com.ph,,
+Mitsubishi,#E60012,Xpander Cross,1.5 AT,2026,Small MPV,MPV,1398000,SAMPLE,7,225,Automatic,Gasoline,1.5L 4-cyl,11,16,3,100000,4,Yes,Yes,Yes,Yes,Yes,Yes,Good,Rugged-look family MPV,The standard Xpander does the same job for less,A good choice if you want the Xpander with tougher SUV styling — the highest-riding model in its class.,Mitsubishi Motors dealers nationwide,https://mitsubishi-motors.com.ph,,
+Mitsubishi,#E60012,Xforce,GLX CVT,2026,Subcompact SUV,SUV,1299000,SAMPLE,5,193,Automatic,Gasoline,1.5L 4-cyl,12,17,3,100000,4,Yes,Yes,No,Yes,Yes,Yes,Basic,The accessible Xforce entry,You want the full kit — GLS and GT sit above,Perfect if you want the stylish Xforce at its new lowest entry price.,Mitsubishi Motors dealers nationwide,https://mitsubishi-motors.com.ph,,
+Mitsubishi,#E60012,Xforce,GLS CVT,2026,Subcompact SUV,SUV,1367000,Jul 2026,5,193,Automatic,Gasoline,1.5L 4-cyl,12,17,3,100000,4,Yes,Yes,Yes,Yes,Yes,Yes,Good,Stylish small SUV done sensibly,Tight parking — it's wider than it looks,A good choice if you want a modern crossover with Active Yaw Control and a comfortable ride.,Mitsubishi Motors dealers nationwide,https://mitsubishi-motors.com.ph,,
+Mitsubishi,#E60012,Xforce,GT CVT,2026,Subcompact SUV,SUV,1581000,Jul 2026,5,193,Automatic,Gasoline,1.5L 4-cyl,12,17,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,Loaded crossover with driver-assist,The GLS already covers your needs,Perfect if you want the Xforce with the full tech and driver-assist package for long-term peace of mind.,Mitsubishi Motors dealers nationwide,https://mitsubishi-motors.com.ph,,
+Mitsubishi,#E60012,Destinator,GLS,2026,3-row SUV,SUV,1599000,SAMPLE,7,214,Automatic,Gasoline (Turbo),1.5L 4-cyl turbo,11,15,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,The new 3-row family contender,You prefer a proven nameplate — it's brand new,A good choice if you want Mitsubishi's newest 7-seat SUV — turbo power and fresh design; verify variants with your dealer.,Mitsubishi Motors dealers nationwide,https://mitsubishi-motors.com.ph,,
+Mitsubishi,#E60012,Triton,GLX 2WD MT,2026,Pickup,Pickup,1204000,SAMPLE,5,228,Manual,Diesel,2.4L 4-cyl turbodiesel,10,14,3,100000,2,Yes,No,No,Yes,No,No,Basic,Hard-working budget pickup,You want comfort and tech — look up the range,A good choice if you want the all-new Triton's toughness at work-truck pricing.,Mitsubishi Motors dealers nationwide,https://mitsubishi-motors.com.ph,,
+Mitsubishi,#E60012,Triton,GX 2WD AT,2026,Pickup,Pickup,1344000,SAMPLE,5,228,Automatic,Diesel,2.4L 4-cyl turbodiesel,10,14,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,Automatic pickup for mixed duty,Pure cargo work — the GLX is cheaper,Perfect if you want the newest-generation pickup with automatic ease — the new budget-friendly AT variant.,Mitsubishi Motors dealers nationwide,https://mitsubishi-motors.com.ph,,
+Mitsubishi,#E60012,Montero Sport,GLX 4x2 MT,2026,Midsize SUV,SUV,1748000,SAMPLE,7,218,Manual,Diesel,2.4L 4-cyl turbodiesel,9,13,3,100000,2,Yes,Yes,No,Yes,Yes,Yes,Basic,The Montero dream at entry price,A manual family SUV rarely suits city duty,Perfect if the Montero has always been the goal — this is the entry door to one of the country's favorite SUVs.,Mitsubishi Motors dealers nationwide,https://mitsubishi-motors.com.ph,,
+Mitsubishi,#E60012,Montero Sport,GLS 2WD AT,2026,Midsize SUV,SUV,2048000,SAMPLE,7,218,Automatic,Diesel,2.4L 4-cyl turbodiesel,9,13,3,100000,7,Yes,Yes,Yes,Yes,Yes,Yes,Good,The classic family SUV formula,City-only driving — it's a big vehicle,"A good choice if you want the proven diesel 7-seater for provinces, floods, and long family trips.",Mitsubishi Motors dealers nationwide,https://mitsubishi-motors.com.ph,,
+Honda,#1A1A1A,Brio,1.2 S CVT,2026,City car,Hatchback,735000,Jul 2026,5,137,Automatic,Gasoline,1.2L 4-cyl,15,21,3,100000,2,Yes,Yes,No,Yes,No,No,Basic,Drivers who want a fun small car,You need clearance for rough streets,A good choice if you want a small car that's actually fun to drive — peppier than most rivals at this price.,Honda Cars dealerships nationwide,https://hondaphil.com,,
+Honda,#1A1A1A,Brio,RS CVT,2026,City car,Hatchback,863000,Jul 2026,5,137,Automatic,Gasoline,1.2L 4-cyl,15,21,3,100000,4,Yes,Yes,No,Yes,Yes,Yes,Basic,Style-conscious first-timers,You're stretching the budget — the S drives the same,Perfect if you want the sportiest-looking budget hatch — same easy Brio underneath with sharper styling.,Honda Cars dealerships nationwide,https://hondaphil.com,,
+Honda,#1A1A1A,City,1.5 S CVT,2026,Subcompact sedan,Sedan,973000,Jul 2026,5,135,Automatic,Gasoline,1.5L 4-cyl,13,19,3,100000,4,Yes,Yes,No,Yes,Yes,Yes,Good,Refined step up from budget sedans,You need high clearance for floods,Perfect if you want more refinement than the budget sedans — roomier back seat and a premium feel under ₱1M.,Honda Cars dealerships nationwide,https://hondaphil.com,,
+Honda,#1A1A1A,City,1.5 V CVT,2026,Subcompact sedan,Sedan,1058000,SAMPLE,5,135,Automatic,Gasoline,1.5L 4-cyl,13,19,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,Safety-first sedan buyers,Budget is tight — the S covers the basics well,A good choice if you want Honda Sensing driver-assist tech in an affordable sedan.,Honda Cars dealerships nationwide,https://hondaphil.com,,
+Honda,#1A1A1A,City,1.5 RS CVT,2026,Subcompact sedan,Sedan,1128000,Jul 2026,5,135,Automatic,Gasoline,1.5L 4-cyl,13,19,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,The sporty top-trim City,Value hunting — the V has the same safety tech,Perfect if you want the City with the full sporty treatment plus the complete Sensing safety suite.,Honda Cars dealerships nationwide,https://hondaphil.com,,
+Honda,#1A1A1A,City Hatchback,RS CVT,2026,Subcompact hatch,Hatchback,1195000,SAMPLE,5,135,Automatic,Gasoline,1.5L 4-cyl,13,19,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,Hatch practicality with City refinement,You want a cheaper hatch — Brio exists,A good choice if you want the City's polish with fold-flat hatchback versatility for gear and groceries.,Honda Cars dealerships nationwide,https://hondaphil.com,,
+Honda,#1A1A1A,BR-V,1.5 S CVT,2026,Small SUV/MPV,SUV,1090000,Jul 2026,7,220,Automatic,Gasoline,1.5L 4-cyl,11,16,3,100000,4,Yes,Yes,Yes,Yes,Yes,Yes,Good,Families who want SUV styling with 7 seats,You want a true third row for adults on long trips,"Perfect if you want 7 seats, SUV clearance, and Honda refinement in one — a strong all-rounder for young families.",Honda Cars dealerships nationwide,https://hondaphil.com,,
+Honda,#1A1A1A,BR-V,1.5 V CVT,2026,Small SUV/MPV,SUV,1250000,SAMPLE,7,220,Automatic,Gasoline,1.5L 4-cyl,11,16,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,The mid-trim family pick,The S already fits your budget better,A good choice if you want the BR-V with more comfort kit without going full VX.,Honda Cars dealerships nationwide,https://hondaphil.com,,
+Honda,#1A1A1A,BR-V,1.5 VX Sensing,2026,Small SUV/MPV,SUV,1390000,Jul 2026,7,220,Automatic,Gasoline,1.5L 4-cyl,11,16,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,7-seater with full driver-assist,Budget-first buyers — the S has the same bones,A good choice if you want a 7-seater watching out for your family with the complete Honda Sensing suite.,Honda Cars dealerships nationwide,https://hondaphil.com,,
+Honda,#1A1A1A,HR-V,1.5 S CVT,2026,Subcompact SUV,SUV,1389000,Jul 2026,5,190,Automatic,Gasoline,1.5L 4-cyl,11,16,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,Premium-feel small crossover,Budget crossovers cover your actual needs,Perfect if you want a step up in design and cabin quality from the budget crossover crowd.,Honda Cars dealerships nationwide,https://hondaphil.com,,
+Honda,#1A1A1A,HR-V,V Turbo CVT,2026,Subcompact SUV,SUV,1598000,SAMPLE,5,190,Automatic,Gasoline (Turbo),1.5L 4-cyl turbo,10,15,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,Quick and classy crossover,Fuel economy first — see the hybrid,A good choice if you want real turbo pull in a refined crossover with full Sensing.,Honda Cars dealerships nationwide,https://hondaphil.com,,
+Honda,#1A1A1A,HR-V,RS e:HEV,2026,Subcompact SUV,SUV,1739000,Jul 2026,5,190,Automatic,Hybrid,1.5L 4-cyl hybrid,18,21,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,Hybrid savings in a premium package,Upfront price matters more than fuel savings,Perfect if you want Honda's full hybrid tech — big city fuel savings with the flagship HR-V kit.,Honda Cars dealerships nationwide,https://hondaphil.com,,
+Honda,#1A1A1A,Civic,V Turbo CVT,2026,Compact sedan,Sedan,1583000,Jul 2026,5,134,Automatic,Gasoline (Turbo),1.5L 4-cyl turbo,11,15,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,The dream first sedan,A subcompact sedan does the job for far less,"A good choice if your first car is also your reward car — refined, quick, and loaded with Sensing safety tech.",Honda Cars dealerships nationwide,https://hondaphil.com,,
+Honda,#1A1A1A,Civic,RS e:HEV,2026,Compact sedan,Sedan,1990000,Jul 2026,5,134,Automatic,Hybrid,2.0L 4-cyl hybrid,18,20,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,The hybrid performance sedan,Value is the priority — the V Turbo delivers,Perfect if you want the Civic flagship — hybrid efficiency with sports-sedan punch.,Honda Cars dealerships nationwide,https://hondaphil.com,,
+Honda,#1A1A1A,CR-V,1.5 V Turbo,2026,Compact SUV,SUV,2290000,SAMPLE,7,198,Automatic,Gasoline (Turbo),1.5L 4-cyl turbo,10,14,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,Premium 7-seat family crossover,Your budget is under ₱2M — BR-V covers 7 seats,"A good choice if you want Honda's premium family SUV — refined, spacious, with a hybrid version above it.",Honda Cars dealerships nationwide,https://hondaphil.com,,
+Suzuki,#0B57A4,S-Presso,GL MT,2026,City car,Hatchback,634000,Jul 2026,5,180,Manual,Gasoline,1.0L 3-cyl,16,23,3,100000,2,Yes,No,No,Yes,Yes,Yes,Basic,The lowest-cost brand-new car,You do frequent highway driving,Perfect if your goal is simply to stop commuting as cheaply as possible — with surprising clearance for its size.,Suzuki Auto dealerships nationwide,https://auto.suzuki.com.ph,,
+Suzuki,#0B57A4,S-Presso,GL AGS,2026,City car,Hatchback,674000,Jul 2026,5,180,AGS (automated manual),Gasoline,1.0L 3-cyl,16,23,3,100000,2,Yes,No,No,Yes,Yes,Yes,Basic,Clutch-free driving at rock-bottom price,You expect a smooth CVT — AGS shifts feel different,A good choice if you want two-pedal convenience at the lowest possible price — test drive the AGS gearbox first.,Suzuki Auto dealerships nationwide,https://auto.suzuki.com.ph,,
+Suzuki,#0B57A4,Swift,GL CVT,2026,City car,Hatchback,989000,Jul 2026,5,120,Automatic,Gasoline,1.2L 3-cyl,15,21,3,100000,6,Yes,Yes,No,Yes,Yes,Yes,Good,Fun-to-drive premium hatch,You need clearance — it sits low,Perfect if you want the hatchback that's charming to drive daily — the new Swift adds a full six-airbag safety kit.,Suzuki Auto dealerships nationwide,https://auto.suzuki.com.ph,,
+Suzuki,#0B57A4,Dzire Hybrid,GL AGS,2026,Subcompact sedan,Sedan,920000,Jul 2026,5,163,AGS (automated manual),Mild hybrid,1.2L 3-cyl mild hybrid,20,24,3,100000,6,Yes,Yes,No,Yes,Yes,Yes,Good,Hybrid sedan savings under ₱1M,You expect a smooth CVT — this uses AGS,A good choice if fuel economy rules your decision — the new Dzire pairs hybrid assist with six airbags.,Suzuki Auto dealerships nationwide,https://auto.suzuki.com.ph,,
+Suzuki,#0B57A4,Dzire Hybrid,GL+ AGS,2026,Subcompact sedan,Sedan,998000,Jul 2026,5,163,AGS (automated manual),Mild hybrid,1.2L 3-cyl mild hybrid,20,24,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,The full-kit hybrid Dzire,The GL already nails the value case,Perfect if you want the most efficient budget sedan with every feature included.,Suzuki Auto dealerships nationwide,https://auto.suzuki.com.ph,,
+Suzuki,#0B57A4,Fronx,GL AT,2026,Subcompact SUV,SUV,1059000,Jul 2026,5,170,Automatic,Gasoline,1.5L 4-cyl,13,18,3,100000,2,Yes,Yes,Yes,Yes,Yes,Yes,Good,Stylish crossover with 5-star safety,You want the hybrid tech — higher trims have it,A good choice if you want Suzuki's newest crossover — a 5-star ASEAN NCAP rating at an accessible price.,Suzuki Auto dealerships nationwide,https://auto.suzuki.com.ph,,5-star ASEAN NCAP
+Suzuki,#0B57A4,Fronx,GLX AT Hybrid,2026,Subcompact SUV,SUV,1179000,SAMPLE,5,170,Automatic,Mild hybrid,1.5L 4-cyl mild hybrid,15,20,3,100000,4,Yes,Yes,Yes,Yes,Yes,Yes,Good,The efficient middle Fronx,Base GL already fits the budget,Perfect if you want the Fronx with hybrid assist for better city fuel numbers.,Suzuki Auto dealerships nationwide,https://auto.suzuki.com.ph,,5-star ASEAN NCAP
+Suzuki,#0B57A4,Fronx,SGX AT Hybrid,2026,Subcompact SUV,SUV,1299000,Jul 2026,5,170,Automatic,Mild hybrid,1.5L 4-cyl mild hybrid,15,20,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,The flagship Fronx with driver-assist,Value hunting — the GL scores the same crash rating,"A good choice if you want the full Fronx: hybrid, 360 camera, blind-spot monitor, and brake support.",Suzuki Auto dealerships nationwide,https://auto.suzuki.com.ph,,5-star ASEAN NCAP
+Suzuki,#0B57A4,Ertiga Hybrid,GLX AT,2026,Small MPV,MPV,1178000,Jul 2026,7,180,Automatic,Mild hybrid,1.5L 4-cyl mild hybrid,13,19,3,100000,2,Yes,Yes,Yes,Yes,Yes,Yes,Basic,Efficient 7-seater for families,You need max clearance — Xpander sits higher,Perfect if you want a 7-seater with hybrid assist — one of the most fuel-efficient family MPVs.,Suzuki Auto dealerships nationwide,https://auto.suzuki.com.ph,,
+Suzuki,#0B57A4,XL7 Hybrid,GLX AT,2026,Small MPV,MPV,1252000,Jul 2026,7,200,Automatic,Mild hybrid,1.5L 4-cyl mild hybrid,13,18,3,100000,2,Yes,Yes,Yes,Yes,Yes,Yes,Basic,SUV-styled 7-seater with hybrid assist,You expect big hybrid savings — it's a mild system,Perfect if you want the Ertiga formula in tougher SUV clothing with a fuel-saving boost.,Suzuki Auto dealerships nationwide,https://auto.suzuki.com.ph,,
+Suzuki,#0B57A4,APV,GA MT,2026,Minivan,MPV,743000,SAMPLE,8,185,Manual,Gasoline,1.6L 4-cyl,10,14,3,100000,2,No,No,No,No,No,No,Basic,Max seats per peso for business,You want modern comfort or safety tech,A good choice if you need to move the most people or cargo for the least money — a proven workhorse.,Suzuki Auto dealerships nationwide,https://auto.suzuki.com.ph,,
+Suzuki,#0B57A4,Jimny 3-Door,GL MT,2026,Compact 4x4,SUV,1258000,Jul 2026,4,210,Manual,Gasoline,1.5L 4-cyl 4x4,10,14,3,100000,2,Yes,No,No,Yes,Yes,Yes,Basic,Adventure-minded buyers,You need daily family practicality — it seats only 4,"A good choice if your heart wants a real 4x4 icon — a lifestyle pick, not a practical family hauler.",Suzuki Auto dealerships nationwide,https://auto.suzuki.com.ph,,
+Suzuki,#0B57A4,Jimny 3-Door,GLX AT,2026,Compact 4x4,SUV,1320000,Jul 2026,4,210,Automatic,Gasoline,1.5L 4-cyl 4x4,10,14,3,100000,2,Yes,Yes,No,Yes,Yes,Yes,Basic,The Jimny with automatic ease,Practicality matters at all — see anything else,Perfect if you've decided on the icon and want it with an automatic for city traffic.,Suzuki Auto dealerships nationwide,https://auto.suzuki.com.ph,,
+Suzuki,#0B57A4,Jimny 5-Door,GL MT,2026,Compact 4x4,SUV,1558000,Jul 2026,5,210,Manual,Gasoline,1.5L 4-cyl 4x4,10,14,3,100000,2,Yes,No,No,Yes,Yes,Yes,Basic,The more livable Jimny,You want cargo space — it's still tiny inside,A good choice if you want the icon with real back doors — the 5-door adds usable family space.,Suzuki Auto dealerships nationwide,https://auto.suzuki.com.ph,,
+Suzuki,#0B57A4,Jimny 5-Door,GLX AT,2026,Compact 4x4,SUV,1698000,Jul 2026,5,210,Automatic,Gasoline,1.5L 4-cyl 4x4,10,14,3,100000,2,Yes,Yes,No,Yes,Yes,Yes,Basic,The full-kit 5-door icon,Value is the priority — this is a heart purchase,"Perfect if the Jimny 5-Door is the dream — automatic, loaded, and endlessly charming.",Suzuki Auto dealerships nationwide,https://auto.suzuki.com.ph,,
+Nissan,#C3002F,Almera,1.0 EL MT,2026,Subcompact sedan,Sedan,845000,Jul 2026,5,134,Manual,Gasoline (Turbo),1.0L 3-cyl turbo,15,21,3,100000,2,Yes,No,No,Yes,No,No,Basic,Turbo power at entry sedan price,You want an automatic — most buyers do,A good choice if you want the only turbocharged engine at this sedan price and don't mind a manual.,Nissan dealerships nationwide,https://nissan.ph,,
+Nissan,#C3002F,Almera,1.0 Turbo VE CVT,2026,Subcompact sedan,Sedan,1020000,SAMPLE,5,134,CVT Automatic,Gasoline (Turbo),1.0L 3-cyl turbo,15,21,3,100000,2,Yes,Yes,Yes,Yes,Yes,Yes,Basic,The automatic turbo sedan,You prefer proven resale — Vios and City lead,Perfect if you want turbo pull with automatic ease in the mid-trim sweet spot.,Nissan dealerships nationwide,https://nissan.ph,,
+Nissan,#C3002F,Almera,1.0 Turbo VL CVT,2026,Subcompact sedan,Sedan,1195000,Jul 2026,5,134,CVT Automatic,Gasoline (Turbo),1.0L 3-cyl turbo,15,21,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,Loaded alternative to Vios/City,You prefer the proven resale of the usual picks,"Perfect if you want to stand out — turbo pull, full kit, and a 360 camera on the top trim.",Nissan dealerships nationwide,https://nissan.ph,,
+Nissan,#C3002F,Livina,1.5 EL MT,2026,Small MPV,MPV,1069000,SAMPLE,7,205,Manual,Gasoline,1.5L 4-cyl,11,16,3,100000,2,Yes,No,No,Yes,Yes,Yes,Basic,Xpander twin at a different badge,You want the AT — check the higher trims,A good choice if you like the Xpander formula — the Livina shares its bones — and your Nissan dealer offers a better deal.,Nissan dealerships nationwide,https://nissan.ph,,
+Nissan,#C3002F,Livina,1.5 VE AT,2026,Small MPV,MPV,1209000,SAMPLE,7,205,Automatic,Gasoline,1.5L 4-cyl,11,16,3,100000,2,Yes,Yes,Yes,Yes,Yes,Yes,Basic,The automatic family Livina,The Xpander's resale is stronger,Perfect if a good deal lands — same practical formula as the best-seller with Nissan's cold AC.,Nissan dealerships nationwide,https://nissan.ph,,
+Nissan,#C3002F,Kicks,e-Power EL,2026,Subcompact SUV,SUV,1209000,SAMPLE,5,185,Automatic,Hybrid (e-Power),1.2L + electric drive,20,21,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,City drivers who want hybrid savings,Long provincial highway runs are your main use,A good choice if most driving is city traffic — the electric drive makes stop-and-go smooth and very efficient.,Nissan dealerships nationwide,https://nissan.ph,,
+Nissan,#C3002F,Kicks,e-Power VL,2026,Subcompact SUV,SUV,1509000,SAMPLE,5,185,Automatic,Hybrid (e-Power),1.2L + electric drive,20,21,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,The loaded electric-drive Kicks,The EL delivers the same drivetrain for less,Perfect if you want the full Kicks with ProPILOT driver-assist watching the road with you.,Nissan dealerships nationwide,https://nissan.ph,,
+Nissan,#C3002F,Navara,2.5 EL Calibre 4x2 AT,2026,Pickup,Pickup,1279000,SAMPLE,5,220,Automatic,Diesel,2.5L 4-cyl turbodiesel,9,13,3,100000,2,Yes,Yes,Yes,Yes,Yes,Yes,Basic,Work-and-family dual-purpose buyers,You mostly park in tight city spaces,A good choice if you need a comfortable pickup — the Navara rides softer than most trucks while still hauling.,Nissan dealerships nationwide,https://nissan.ph,,
+Nissan,#C3002F,Navara,2.5 VE Calibre 4x2 AT,2026,Pickup,Pickup,1429000,SAMPLE,5,220,Automatic,Diesel,2.5L 4-cyl turbodiesel,9,13,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,The comfort-spec Navara,Pure work duty — the EL saves money,Perfect if the pickup doubles as the family car — more kit on the segment's softest ride.,Nissan dealerships nationwide,https://nissan.ph,,
+Nissan,#C3002F,Navara,PRO-4X 4x4 AT,2026,Pickup,Pickup,1999000,SAMPLE,5,220,Automatic,Diesel,2.5L 4-cyl turbodiesel,9,13,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,Off-road-ready flagship truck,You'll never leave paved roads,A good choice if weekends mean trails — the PRO-4X brings real 4x4 kit and full driver-assist.,Nissan dealerships nationwide,https://nissan.ph,,
+Nissan,#C3002F,Terra,2.5 VE 4x2 AT,2026,Midsize SUV,SUV,1879000,SAMPLE,7,225,Automatic,Diesel,2.5L 4-cyl turbodiesel,9,13,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,Tough 7-seat family SUV,Your routes are all city — it's a big vehicle,"Perfect if you want a rugged 7-seater built on pickup bones for provinces, floods, and long family trips.",Nissan dealerships nationwide,https://nissan.ph,,
+Nissan,#C3002F,Terra,2.5 VL 4x2 AT,2026,Midsize SUV,SUV,2149000,SAMPLE,7,225,Automatic,Diesel,2.5L 4-cyl turbodiesel,9,13,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,The loaded family Terra,The VE covers the essentials for less,A good choice if you want the Terra with the full comfort and driver-assist package.,Nissan dealerships nationwide,https://nissan.ph,,
+Ford,#003478,Territory,1.5 Trend,2026,Compact SUV,SUV,1335000,Jul 2026,5,190,Automatic,Gasoline (Turbo),1.5L 4-cyl turbo,9,13,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,Max SUV space per peso,Fuel economy is a priority — the turbo drinks,"Perfect if you want a big, roomy SUV feel for compact-SUV money — huge screens and space are its calling cards.",Ford dealerships nationwide,https://ford.com.ph,,
+Ford,#003478,Territory,1.5 Titanium,2026,Compact SUV,SUV,1469000,SAMPLE,5,190,Automatic,Gasoline (Turbo),1.5L 4-cyl turbo,9,13,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,Tech-loaded SUV under ₱1.5M,You won't use the extra tech — Trend is the value pick,A good choice if you want driver-assist features and premium touches without premium-brand prices.,Ford dealerships nationwide,https://ford.com.ph,,
+Ford,#003478,Territory,1.5 Sport,2026,Compact SUV,SUV,1625000,Jul 2026,5,190,Automatic,Gasoline (Turbo),1.5L 4-cyl turbo,9,13,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,The full-kit Territory,Value hunting — lower trims share the space,Perfect if you want the Territory flagship with every feature box ticked.,Ford dealerships nationwide,https://ford.com.ph,,
+Ford,#003478,Territory,Hybrid,2026,Compact SUV,SUV,1769000,SAMPLE,5,190,Automatic,Hybrid,1.5L 4-cyl hybrid,16,18,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,Ford's fuel-sipping family SUV,Upfront budget beats running-cost savings,A good choice if you want Territory space with hybrid running costs — Ford's newest electrified entry.,Ford dealerships nationwide,https://ford.com.ph,,
+Ford,#003478,Ranger,2.0 XLS 4x2 AT,2026,Pickup,Pickup,1379000,Jul 2026,5,235,Automatic,Diesel,2.0L 4-cyl turbodiesel,9,13,3,100000,2,Yes,Yes,No,Yes,Yes,Yes,Basic,The accessible automatic Ranger,You want comfort features — XLT and up deliver,A good choice if your first vehicle also works for a living — the Ranger entry point now comes automatic.,Ford dealerships nationwide,https://ford.com.ph,,
+Ford,#003478,Ranger,2.0 XLT 4x2 AT,2026,Pickup,Pickup,1504000,SAMPLE,5,235,Automatic,Diesel,2.0L 4-cyl turbodiesel,9,13,3,100000,4,Yes,Yes,Yes,Yes,Yes,Yes,Good,The family-friendly Ranger,Pure work duty — the XLS saves money,Perfect if you want the Ranger's capability with the comfort and tech for daily family life.,Ford dealerships nationwide,https://ford.com.ph,,
+Ford,#003478,Ranger,2.0 Sport 4x2 AT,2026,Pickup,Pickup,1684000,SAMPLE,5,235,Automatic,Diesel,2.0L 4-cyl turbodiesel,9,13,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,Style-forward daily pickup,The XLT does the same job for less,A good choice if you want the sporty Ranger look with wireless charging and keyless convenience.,Ford dealerships nationwide,https://ford.com.ph,,
+Ford,#003478,Ranger,2.0 Bi-Turbo Wildtrak 4x4,2026,Pickup,Pickup,2355000,Jul 2026,5,235,Automatic,Diesel,2.0L 4-cyl bi-turbo diesel,9,13,3,100000,7,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,The do-everything flagship Ranger,You'll never use the 4x4 or tow,"Perfect if you want the full Ranger: bi-turbo power, 4x4, 360 camera, and the complete driver-assist suite.",Ford dealerships nationwide,https://ford.com.ph,,
+Ford,#003478,Ranger Raptor,3.0 V6 4x4,2026,Pickup,Pickup,2799000,Jul 2026,5,272,Automatic,Gasoline (Twin-turbo V6),3.0L V6 twin-turbo,7,11,3,100000,7,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,The performance truck icon,Any part of you is asking about fuel economy,"A good choice only if you've fallen for it — the Raptor is a desert racer for the road, and it knows it.",Ford dealerships nationwide,https://ford.com.ph,,
+Ford,#003478,Everest,2.0 Trend 4x2,2026,Midsize SUV,SUV,1855000,SAMPLE,7,225,Automatic,Diesel,2.0L 4-cyl turbodiesel,10,14,3,100000,7,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,Families needing a serious 7-seater,Your budget is under ₱1.5M — strong options exist there,"Perfect if you want a true full-size family SUV: commanding view, flood-capable clearance, and a long safety list.",Ford dealerships nationwide,https://ford.com.ph,,
+Ford,#003478,Everest,2.0 Titanium+ 4x2,2026,Midsize SUV,SUV,2478000,SAMPLE,7,225,Automatic,Diesel,2.0L 4-cyl bi-turbo diesel,10,14,3,100000,7,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,The loaded family flagship,Trend already carries the family fine,"A good choice if you want the Everest with panoramic roof, 360 camera, and the complete tech suite.",Ford dealerships nationwide,https://ford.com.ph,,
+Isuzu,#C8102E,D-Max,RZ4E Single Cab 4x2 MT,2026,Pickup,Pickup,978000,Jul 2026,3,240,Manual,Diesel,1.9L 4-cyl turbodiesel,11,15,3,100000,2,Yes,No,No,No,No,No,Basic,Pure business workhorse,You need a family vehicle too,Perfect if the truck is for the business — the cheapest door into Isuzu's legendary diesel durability.,Isuzu dealerships nationwide,https://isuzuphil.com,,
+Isuzu,#C8102E,D-Max,3.0 LS 4x2 MT,2026,Pickup,Pickup,1450000,SAMPLE,5,240,Manual,Diesel,3.0L 4-cyl turbodiesel,10,15,3,100000,2,Yes,No,No,Yes,Yes,Yes,Basic,Big-engine workhorse value,You want automatic and comfort — climb the range,A good choice if you want the full 3.0L diesel at the lowest passenger-cab price.,Isuzu dealerships nationwide,https://isuzuphil.com,,
+Isuzu,#C8102E,D-Max,3.0 LS 4x2 AT,2026,Pickup,Pickup,1550000,SAMPLE,5,240,Automatic,Diesel,3.0L 4-cyl turbodiesel,10,15,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,Comfortable daily-drivable pickup,City-only driving — a crossover is easier to live with,A good choice if you want legendary Isuzu toughness with automatic convenience for family duty.,Isuzu dealerships nationwide,https://isuzuphil.com,,
+Isuzu,#C8102E,D-Max,3.0 LS-A Plus 4x2 AT,2026,Pickup,Pickup,1880000,Jul 2026,5,240,Automatic,Diesel,3.0L 4-cyl turbodiesel,10,15,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,The comfort-spec D-Max,The LS covers the essentials for less,"Perfect if the D-Max is also the family car — bigger screen, more comfort, same unkillable diesel.",Isuzu dealerships nationwide,https://isuzuphil.com,,
+Isuzu,#C8102E,D-Max,3.0 LS-E 4x2 AT,2026,Pickup,Pickup,2094000,Jul 2026,5,240,Automatic,Diesel,3.0L 4-cyl turbodiesel,10,15,3,100000,7,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,Full driver-assist pickup,You don't need ADAS in a truck,"A good choice if you want Isuzu's complete ADAS suite — adaptive cruise, lane warning, collision braking.",Isuzu dealerships nationwide,https://isuzuphil.com,,
+Isuzu,#C8102E,D-Max,3.0 4x4 LS-E AT,2026,Pickup,Pickup,2394000,Jul 2026,5,240,Automatic,Diesel,3.0L 4-cyl turbodiesel,10,15,3,100000,7,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,The everything D-Max,You'll never engage the 4x4,"Perfect if you want the flagship: 4x4 capability, full ADAS, and Isuzu's bulletproof reputation.",Isuzu dealerships nationwide,https://isuzuphil.com,,
+Isuzu,#C8102E,mu-X,RZ4E LS 4x2 AT,2026,Midsize SUV,SUV,1725000,Jul 2026,7,235,Automatic,Diesel,1.9L 4-cyl turbodiesel,11,15,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,Province-proof family SUV,Most driving is short city hops,"A good choice if you need a true 7-seater for floods, provinces, and long trips — the efficient 1.9L diesel keeps costs sane.",Isuzu dealerships nationwide,https://isuzuphil.com,,
+Isuzu,#C8102E,mu-X,3.0 LS-A 4x2 AT,2026,Midsize SUV,SUV,2150000,SAMPLE,7,235,Automatic,Diesel,3.0L 4-cyl turbodiesel,10,14,3,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,The big-engine family mu-X,The 1.9L already hauls the family fine,Perfect if you want the full 3.0L pulling power for a fully loaded cabin on the highway.,Isuzu dealerships nationwide,https://isuzuphil.com,,
+Isuzu,#C8102E,mu-X,3.0 4x4 LS-E AT,2026,Midsize SUV,SUV,2670000,Jul 2026,7,235,Automatic,Diesel,3.0L 4-cyl turbodiesel,10,14,3,100000,7,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,The flagship go-anywhere SUV,4x2 rivals offer the same features for less,A good choice only if you truly need 4x4 — otherwise the lower trims deliver the same family experience.,Isuzu dealerships nationwide,https://isuzuphil.com,,
+Isuzu,#C8102E,Traviz,L Utility,2026,Light commercial,Pickup,1048000,SAMPLE,3,190,Manual,Diesel,2.5L 4-cyl diesel,9,13,3,100000,2,No,No,No,No,No,No,Basic,Small-business cargo duty,"This is a delivery truck, not a family car","Perfect if the goal is moving goods, not people — a pure business tool with Isuzu diesel economics.",Isuzu dealerships nationwide,https://isuzuphil.com,,
+MG,#B01F24,MG3,1.5 Std,2026,City car,Hatchback,678888,Jul 2026,5,160,Automatic,Gasoline,1.5L 4-cyl,13,18,5,100000,4,Yes,Yes,No,Yes,Yes,Yes,Basic,Feature-hunters on a hatch budget,You prioritize resale — Japanese brands hold better,A good choice if you want more style and features per peso than the Japanese brands — factor in the newer dealer network.,MG Philippines dealerships,https://mgmotor.com.ph,,
+MG,#B01F24,MG3,Hybrid+ Std,2026,City car,Hatchback,938000,SAMPLE,5,160,Automatic,Hybrid,1.5L 4-cyl hybrid,20,22,5,100000,6,Yes,Yes,No,Yes,Yes,Yes,Good,Cheapest way into full hybrid,You keep cars 10+ years — ask about battery warranty,Perfect if you want real hybrid fuel savings at a price no Japanese hybrid touches.,MG Philippines dealerships,https://mgmotor.com.ph,,
+MG,#B01F24,MG3,Hybrid+ Lux,2026,City car,Hatchback,1089000,Jul 2026,5,160,Automatic,Hybrid,1.5L 4-cyl hybrid,20,22,5,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,The full-kit hybrid hatch,The Std hybrid saves the same fuel,A good choice if you want the hybrid MG3 with every comfort feature included.,MG Philippines dealerships,https://mgmotor.com.ph,,
+MG,#B01F24,MG5,1.5 Style MT,2026,Subcompact sedan,Sedan,698888,Jul 2026,5,150,Manual,Gasoline,1.5L 4-cyl,12,17,5,100000,2,Yes,No,No,Yes,Yes,Yes,Basic,Biggest sedan under ₱700k,You want an automatic — see the Prestige,"A good choice if you want a larger, sleeker sedan than the price suggests — huge cabin for the money.",MG Philippines dealerships,https://mgmotor.com.ph,,
+MG,#B01F24,MG5,1.5 Prestige CVT,2026,Subcompact sedan,Sedan,888888,Jul 2026,5,150,Automatic,Gasoline,1.5L 4-cyl,12,17,5,100000,4,Yes,Yes,Yes,Yes,Yes,Yes,Basic,Big-sedan looks with automatic ease,Resale value matters most to you,Perfect if you want maximum sedan per peso — one of the roomiest cabins under ₱900k with full kit.,MG Philippines dealerships,https://mgmotor.com.ph,,
+MG,#B01F24,ZS,1.5 Style,2026,Subcompact SUV,SUV,949000,SAMPLE,5,165,Automatic,Gasoline,1.5L 4-cyl,11,16,5,100000,4,Yes,Yes,Yes,Yes,Yes,Yes,Basic,Brand-new SUV under ₱1M,You need real clearance — 165 mm is car-like,Perfect if you want a brand-new SUV under ₱1M — one of the cheapest tickets into the crossover class.,MG Philippines dealerships,https://mgmotor.com.ph,,
+MG,#B01F24,ZS,Hybrid+,2026,Subcompact SUV,SUV,1158000,SAMPLE,5,165,Automatic,Hybrid,1.5L 4-cyl hybrid,18,20,5,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,Hybrid crossover on a budget,Clearance matters — it sits car-low,A good choice if you want hybrid savings in crossover form without crossing ₱1.2M.,MG Philippines dealerships,https://mgmotor.com.ph,,
+MG,#B01F24,MG4 EV,Standard,2026,Compact EV,Hatchback,1469000,Jul 2026,5,150,Automatic,Electric (EV),Electric motor + battery,,,5,100000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,First-time EV adopters,You can't charge at home reliably,Perfect if you're ready to skip gasoline entirely — one of the most affordable real EVs in the market.,MG Philippines dealerships,https://mgmotor.com.ph,,
+Hyundai,#002C5F,Accent,2026 base,2026,Subcompact sedan,Sedan,698888,Jul 2026,5,150,Automatic,Gasoline,1.4L 4-cyl,13,18,5,200000,2,Yes,Yes,No,Yes,Yes,Yes,Basic,The Accent nameplate returns,You want the full safety kit — check higher trims,A good choice if you loved the old Accent's value formula — it's back at a strikingly low price; verify trim details with your dealer.,Hyundai dealerships nationwide,https://hyundai.com/ph,,
+Hyundai,#002C5F,Venue,base,2026,Subcompact SUV,SUV,798000,Jul 2026,5,170,Automatic,Gasoline,1.4L 4-cyl,12,17,5,200000,2,Yes,Yes,No,Yes,Yes,Yes,Basic,Smallest crossover money can buy new,You carry passengers often — it's snug inside,Perfect if you want crossover style at hatchback money with Hyundai's long warranty behind it.,Hyundai dealerships nationwide,https://hyundai.com/ph,,
+Hyundai,#002C5F,Elantra,base,2026,Compact sedan,Sedan,1065000,Jul 2026,5,140,Automatic,Gasoline,1.6L 4-cyl,12,16,5,200000,6,Yes,Yes,No,Yes,Yes,Yes,Good,Striking compact sedan value,Resale — Corolla and Civic hold better,"A good choice if you want a bigger, bolder sedan than the subcompacts at a subcompact-adjacent price.",Hyundai dealerships nationwide,https://hyundai.com/ph,,
+Hyundai,#002C5F,Stargazer,1.5 GL Plus IVT,2026,Small MPV,MPV,1118000,Jul 2026,7,190,Automatic,Gasoline,1.5L 4-cyl,12,18,5,200000,2,Yes,Yes,No,Yes,Yes,Yes,Basic,Futuristic 7-seater entry point,Airbag count matters — X trims carry six,Perfect if you want the freshly redesigned Stargazer at its entry price — note this trim carries 2 airbags vs 6 on the X trims.,Hyundai dealerships nationwide,https://hyundai.com/ph,,
+Hyundai,#002C5F,Stargazer,1.5 GLS IVT,2026,Small MPV,MPV,1228000,Jul 2026,7,190,Automatic,Gasoline,1.5L 4-cyl,12,18,5,200000,2,Yes,Yes,Yes,Yes,Yes,Yes,Basic,The mid-trim family Stargazer,The X trims add the real safety upgrade,A good choice if you want more comfort kit — but weigh the X GLS Plus for its six airbags.,Hyundai dealerships nationwide,https://hyundai.com/ph,,
+Hyundai,#002C5F,Stargazer,X GLS Plus IVT,2026,Small MPV,MPV,1318000,Jul 2026,7,190,Automatic,Gasoline,1.5L 4-cyl,12,18,5,200000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,The safety-smart Stargazer pick,Budget stops at the GLS,Perfect if you want six airbags and the rugged X styling — the smart-money trim for families.,Hyundai dealerships nationwide,https://hyundai.com/ph,,
+Hyundai,#002C5F,Stargazer,X Premium IVT,2026,Small MPV,MPV,1378000,Jul 2026,7,190,Automatic,Gasoline,1.5L 4-cyl,12,18,5,200000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,Full driver-assist family MPV,The X GLS Plus covers the safety core,A good choice if you want SmartSense adaptive cruise and emergency braking in an MPV under ₱1.4M.,Hyundai dealerships nationwide,https://hyundai.com/ph,,
+Hyundai,#002C5F,Creta,GL 1.5 IVT,2026,Subcompact SUV,SUV,1134000,Jul 2026,5,190,Automatic,Gasoline,1.5L 4-cyl,12,17,5,200000,6,Yes,Yes,No,Yes,Yes,Yes,Good,Modern crossover with long warranty,You need 7 seats — see Stargazer or BR-V,A good choice if you want a modern crossover with good flood clearance and one of the longest warranties around.,Hyundai dealerships nationwide,https://hyundai.com/ph,,
+Hyundai,#002C5F,Creta,GLS IVT,2026,Subcompact SUV,SUV,1258000,SAMPLE,5,190,Automatic,Gasoline,1.5L 4-cyl,12,17,5,200000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,The mid-trim Creta sweet spot,The GL already nails the value,Perfect if you want the Creta with the comfort upgrades most owners actually use.,Hyundai dealerships nationwide,https://hyundai.com/ph,,
+Hyundai,#002C5F,Creta,GLS Premium IVT,2026,Subcompact SUV,SUV,1398000,SAMPLE,5,190,Automatic,Gasoline,1.5L 4-cyl,12,17,5,200000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,Safety-tech-focused crossover buyers,Value hunting — the GL is the smart-money trim,"Perfect if you want driver-assist tech (lane keeping, collision avoidance) in a crossover under ₱1.5M.",Hyundai dealerships nationwide,https://hyundai.com/ph,,
+Hyundai,#002C5F,Tucson,base,2026,Compact SUV,SUV,1498000,Jul 2026,5,181,Automatic,Gasoline,2.0L 4-cyl,10,14,5,200000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,Head-turning compact SUV,Fuel economy first — see hybrids,A good choice if you want striking design and a big warranty in the compact SUV class.,Hyundai dealerships nationwide,https://hyundai.com/ph,,
+Hyundai,#002C5F,Custin,base,2026,MPV,MPV,1770000,Jul 2026,7,170,Automatic,Gasoline (Turbo),1.5L 4-cyl turbo,10,14,5,200000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,The premium family van alternative,A Stargazer carries the family for far less,Perfect if you want minivan-style sliding-door family comfort with modern turbo power.,Hyundai dealerships nationwide,https://hyundai.com/ph,,
+Kia,#05141F,Soluto,LX MT,2026,Subcompact sedan,Sedan,698000,Jul 2026,5,150,Manual,Gasoline,1.4L 4-cyl,13,18,5,160000,2,Yes,No,No,Yes,No,No,Basic,"Simple, honest budget sedan",You want features — rivals pack more in,A good choice if you want a straightforward sedan with Kia's long warranty at a rock-bottom price.,Kia dealerships nationwide,https://kiaphilippines.com,,
+Kia,#05141F,Soluto,EX AT,2026,Subcompact sedan,Sedan,848000,SAMPLE,5,150,Automatic,Gasoline,1.4L 4-cyl,13,18,5,160000,2,Yes,Yes,No,Yes,Yes,Yes,Basic,The automatic budget Kia,Newer rivals offer more for similar money,Perfect if you want the simplest possible automatic sedan ownership with a 5-year warranty.,Kia dealerships nationwide,https://kiaphilippines.com,,
+Kia,#05141F,Sonet,LX MT,2026,Subcompact SUV,SUV,778000,Jul 2026,5,205,Manual,Gasoline,1.5L 4-cyl,13,18,5,160000,2,Yes,Yes,Yes,Yes,Yes,Yes,Basic,Real SUV clearance under ₱800k,Independent crash tests of earlier units scored low — ask about the latest safety spec,Perfect if you want genuine 205 mm clearance at the lowest crossover price in the market — one of the country's top sellers.,Kia dealerships nationwide,https://kiaphilippines.com,,
+Kia,#05141F,Sonet,LX IVT,2026,Subcompact SUV,SUV,898000,SAMPLE,5,205,Automatic,Gasoline,1.5L 4-cyl,13,18,5,160000,2,Yes,Yes,Yes,Yes,Yes,Yes,Basic,The automatic entry Sonet,Safety kit matters — the SX carries more,A good choice if you want the best-selling small crossover with automatic ease under ₱900k.,Kia dealerships nationwide,https://kiaphilippines.com,,
+Kia,#05141F,Sonet,EX IVT,2026,Subcompact SUV,SUV,1029000,SAMPLE,5,205,Automatic,Gasoline,1.5L 4-cyl,13,18,5,160000,4,Yes,Yes,Yes,Yes,Yes,Yes,Basic,The mid-trim Sonet,The LX rides on the same bones,Perfect if you want the Sonet with bigger screens and more comfort while staying near ₱1M.,Kia dealerships nationwide,https://kiaphilippines.com,,
+Kia,#05141F,Sonet,SX IVT,2026,Subcompact SUV,SUV,1199000,SAMPLE,5,205,Automatic,Gasoline,1.5L 4-cyl,13,18,5,160000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,The loaded small SUV,Budget-first buyers — the LX has the same bones,"A good choice if you want the Sonet with all the airbags, tech, and driver aids — plus Kia's long warranty.",Kia dealerships nationwide,https://kiaphilippines.com,,
+Kia,#05141F,Seltos,EX,2026,Compact SUV,SUV,1158000,Jul 2026,5,190,Automatic,Gasoline,1.5L 4-cyl,11,15,5,160000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,Step-up crossover value,The Sonet fits your life for less,Perfect if the subcompacts feel tight — real cabin space with Kia's warranty at a sharp new price.,Kia dealerships nationwide,https://kiaphilippines.com,,
+Kia,#05141F,Seltos,SX,2026,Compact SUV,SUV,1218000,Jul 2026,5,190,Automatic,Gasoline,1.5L 4-cyl,11,15,5,160000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,The full-kit Seltos,The EX already covers the essentials,A good choice if you want the Seltos flagship with the complete tech and driver-assist package.,Kia dealerships nationwide,https://kiaphilippines.com,,
+Kia,#05141F,Carens,1.5 LX IVT,2026,MPV,MPV,1570000,SAMPLE,7,195,Automatic,Gasoline,1.5L 4-cyl,11,16,5,160000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,Stylish 7-seater alternative,It's newly launched — verify price and stock,Perfect if you want a 7-seater that doesn't look like everyone else's — confirm final pricing with your dealer as it's just arriving.,Kia dealerships nationwide,https://kiaphilippines.com,,
+Kia,#05141F,Sportage,base,2026,Compact SUV,SUV,2188000,Jul 2026,5,181,Automatic,Gasoline,2.0L 4-cyl,10,14,5,160000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,Design-forward compact SUV,Budget crossovers cover your needs for half,A good choice if you want Kia's striking flagship crossover design — a hybrid version is arriving too.,Kia dealerships nationwide,https://kiaphilippines.com,,
+Kia,#05141F,K2500,Karga,2026,Light commercial,Pickup,1238000,Jul 2026,3,180,Manual,Diesel,2.5L 4-cyl turbodiesel,9,13,5,160000,2,No,No,No,No,No,No,Basic,Small-business hauling duty,"This is a delivery truck, not a family car",Perfect if the purchase is purely for business — a proven light truck with Kia's long warranty.,Kia dealerships nationwide,https://kiaphilippines.com,,
+Kia,#05141F,Carnival,base Hybrid,2026,Large MPV,MPV,2888000,Jul 2026,7,170,Automatic,Hybrid,1.6L turbo hybrid,12,14,5,160000,7,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,The first-class family van,This is triple a sensible first-car budget,"A good choice only as an aspirational pick — the Carnival is the premium family benchmark, now a turbo hybrid.",Kia dealerships nationwide,https://kiaphilippines.com,,
+BYD,#004C97,Seagull,Dynamic,2026,EV city car,Hatchback,968000,May 2026,5,130,Automatic,Electric (EV),Electric motor + Blade battery,,,6,150000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,Cheapest real EV in the market,You can't charge at home or work reliably,"Perfect if you're ready to skip gasoline entirely — the most affordable full EV here, with BYD's 6-year warranty behind it.",BYD dealerships nationwide (ACMobility network),https://bydcarsphilippines.com,,
+BYD,#004C97,Dolphin,Dynamic Standard,2026,Compact EV,Hatchback,1438000,May 2026,5,130,Automatic,Electric (EV),Electric motor + Blade battery,,,6,150000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,Roomier everyday EV,Home charging isn't possible for you,"A good choice if you want a more spacious EV than the Seagull for daily family duty — zero fuel, minimal maintenance.",BYD dealerships nationwide (ACMobility network),https://bydcarsphilippines.com,,
+BYD,#004C97,Seal 5 DM-i,Dynamic,2026,PHEV sedan,Sedan,958000,May 2026,5,150,Automatic,Plug-in hybrid (DM-i),1.5L + electric motor (PHEV),25,22,6,150000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,Plug-in hybrid under ₱1M,You'll never plug it in — you lose the main benefit,"Perfect if you want the cheapest plug-in hybrid in the market — city driving on electricity, gasoline for long trips, no range anxiety.",BYD dealerships nationwide (ACMobility network),https://bydcarsphilippines.com,,
+BYD,#004C97,Seal 5 DM-i,Premium,2026,PHEV sedan,Sedan,1198000,May 2026,5,150,Automatic,Plug-in hybrid (DM-i),1.5L + electric motor (PHEV),25,22,6,150000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,The loaded plug-in sedan,The Dynamic already delivers the same drivetrain,A good choice if you want the full-kit version of the country's most affordable PHEV sedan.,BYD dealerships nationwide (ACMobility network),https://bydcarsphilippines.com,,
+BYD,#004C97,Sealion 5 DM-i,base,2026,PHEV SUV,SUV,1248000,Jul 2026,5,175,Automatic,Plug-in hybrid (DM-i),1.5L + electric motor (PHEV),23,20,6,150000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,Affordable plug-in family SUV,No home outlet or charger access,"Perfect if you want SUV practicality with plug-in running costs — electric commutes, gasoline freedom for the province.",BYD dealerships nationwide (ACMobility network),https://bydcarsphilippines.com,,
+BYD,#004C97,Sealion 6 DM-i,base,2026,PHEV SUV,SUV,1598000,May 2026,5,173,Automatic,Plug-in hybrid (DM-i),1.5L + electric motor (PHEV),23,20,6,150000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,The refined plug-in crossover,You never plug in — a regular hybrid suits you more,"A good choice if you want a premium-feeling PHEV SUV — ultra-low fuel bills when charged, full driver-assist included.",BYD dealerships nationwide (ACMobility network),https://bydcarsphilippines.com,,
+BYD,#004C97,Atto 3,Dynamic,2026,Compact EV SUV,SUV,1638000,May 2026,5,175,Automatic,Electric (EV),Electric motor + Blade battery,,,6,150000,7,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,The proven everyday EV crossover,Long daily provincial runs without charging stops,Perfect if you want the EV crossover with the longest local track record — practical range and a playful cabin.,BYD dealerships nationwide (ACMobility network),https://bydcarsphilippines.com,,
+BYD,#004C97,Atto 3,Premium,2026,Compact EV SUV,SUV,1848000,May 2026,5,175,Automatic,Electric (EV),Electric motor + Blade battery,,,6,150000,7,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,The longer-range Atto 3,The Dynamic range already covers your commute,A good choice if you want extra battery range for out-of-town confidence.,BYD dealerships nationwide (ACMobility network),https://bydcarsphilippines.com,,
+BYD,#004C97,Seal,Advanced,2026,EV sedan,Sedan,2098000,May 2026,5,130,Automatic,Electric (EV),Electric motor + Blade battery,,,6,150000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,The premium EV sedan statement,Budget sanity — the Seal 5 exists for half,"Perfect if you want a genuinely quick, premium electric sedan — the halo car of the affordable EV wave.",BYD dealerships nationwide (ACMobility network),https://bydcarsphilippines.com,,
+BYD,#004C97,Shark 6 DMO,Advanced,2026,PHEV pickup,Pickup,2388000,May 2026,5,230,Automatic,Plug-in hybrid (DMO),1.5L turbo + dual motors (PHEV),18,15,6,150000,6,Yes,Yes,Yes,Yes,Yes,Yes,Advanced,The plug-in pickup pioneer,You need proven long-haul diesel simplicity,A good choice if you want pickup capability with electric running costs — the first plug-in truck in its class here.,BYD dealerships nationwide (ACMobility network),https://bydcarsphilippines.com,,
+BYD,#004C97,eMAX 7,Standard,2026,EV MPV,MPV,1748000,SAMPLE,7,170,Automatic,Electric (EV),Electric motor + Blade battery,,,6,150000,6,Yes,Yes,Yes,Yes,Yes,Yes,Good,The electric family 7-seater,Frequent long trips beyond charging range,Perfect if the family shuttle runs on city routes — 7 seats with zero fuel cost; verify variant pricing with your dealer.,BYD dealerships nationwide (ACMobility network),https://bydcarsphilippines.com,,
+</script>
+
+<script>
+/* ================================================================
+   CONFIG — YOUR GOOGLE SHEET GOES HERE
+   Import unakotse-data-template.csv into Google Sheets, then:
+   File → Share → Publish to web → your tab → CSV → copy URL below.
+   Leave empty ("") to use the built-in fallback database.
+   ================================================================ */
+const SHEET_CSV_URL = "";
+
+const BRAND_COLORS = {
+  "Toyota":"#E11B22","Mitsubishi":"#E60012","Honda":"#1A1A1A","Suzuki":"#0B57A4",
+  "Nissan":"#C3002F","Ford":"#003478","Isuzu":"#C8102E","MG":"#B01F24",
+  "Hyundai":"#002C5F","Kia":"#05141F"
+};
+
+/* ---------- CSV parsing ---------- */
+function parseCSV(text){
+  const rows = [];
+  let row = [], cell = "", inQuotes = false;
+  for(let i = 0; i < text.length; i++){
+    const ch = text[i];
+    if(inQuotes){
+      if(ch === '"'){
+        if(text[i+1] === '"'){ cell += '"'; i++; }
+        else inQuotes = false;
+      } else cell += ch;
+    } else {
+      if(ch === '"') inQuotes = true;
+      else if(ch === ','){ row.push(cell); cell = ""; }
+      else if(ch === '\n' || ch === '\r'){
+        if(ch === '\r' && text[i+1] === '\n') i++;
+        row.push(cell); cell = "";
+        if(row.some(c => c.trim() !== "")) rows.push(row);
+        row = [];
+      }
+      else cell += ch;
+    }
+  }
+  row.push(cell);
+  if(row.some(c => c.trim() !== "")) rows.push(row);
+  return rows;
+}
+
+const yes = v => /^(yes|y|true|1)$/i.test(String(v).trim());
+
+function sheetToBrands(rows){
+  if(rows.length < 2) return null;
+  const headers = rows[0].map(h => h.trim().toLowerCase());
+  const idx = {}; headers.forEach((h,i) => idx[h] = i);
+  const get = (r, name) => idx[name] !== undefined ? (r[idx[name]] || "").trim() : "";
+  const num = (r, name) => { const v = parseFloat(String(get(r,name)).replace(/[^0-9.]/g,"")); return isNaN(v) ? 0 : v; };
+
+  const map = new Map();
+  for(let r = 1; r < rows.length; r++){
+    const row = rows[r];
+    const brand = get(row, "brand");
+    if(!brand) continue;
+    if(!map.has(brand)){
+      map.set(brand, {
+        name: brand,
+        color: get(row, "brandcolor") || BRAND_COLORS[brand] || "#1A45C9",
+        cars: []
+      });
+    }
+    map.get(brand).cars.push({
+      model: get(row,"model"), trim: get(row,"trim"),
+      modelYear: get(row,"modelyear"), segment: get(row,"segment"),
+      body: get(row,"body") || "Car",
+      srp: num(row,"srp"),
+      priceAsOf: get(row,"priceasofdate"),
+      seats: num(row,"seats") || 5,
+      clearanceMm: num(row,"clearancemm"),
+      transmission: get(row,"transmission") || "—",
+      fuel: get(row,"fuel") || "—",
+      engine: get(row,"engine"),
+      econCity: num(row,"fueleconcity"),
+      econHwy: num(row,"fueleconhwy"),
+      warrantyYears: num(row,"warrantyyears"),
+      warrantyKm: num(row,"warrantykm"),
+      airbags: num(row,"airbags"),
+      sc: yes(get(row,"stabilitycontrol")),
+      cam: yes(get(row,"reversecamera")),
+      sensors: yes(get(row,"parkingsensors")),
+      isofix: yes(get(row,"isofix")),
+      carplay: yes(get(row,"applecarplay")),
+      aauto: yes(get(row,"androidauto")),
+      safetyLevel: get(row,"safetylevel") || "Basic",
+      img: get(row,"imageurl"),
+      ncap: get(row,"ncap"),
+      bestFor: get(row,"bestfor"),
+      avoidIf: get(row,"avoidif"),
+      advice: get(row,"advice"),
+      where: get(row,"where") || "Ask your nearest dealer.",
+      link: get(row,"link") || "#"
+    });
+  }
+  const brands = [...map.values()].filter(b => b.cars.length);
+  return brands.length ? brands : null;
+}
+
+/* ---------- data loading ---------- */
+let BRANDS = [];
+
+function loadFallback(){
+  const raw = document.getElementById("fallbackCSV").textContent;
+  BRANDS = sheetToBrands(parseCSV(raw)) || [];
+}
+
+async function loadData(){
+  if(!SHEET_CSV_URL){
+    loadFallback();
+    document.getElementById("dataSource").textContent =
+      "Data: built-in sample (" + BRANDS.reduce((n,b)=>n+b.cars.length,0) + " cars) — connect your Google Sheet to go live";
+    init(); return;
+  }
+  try{
+    const res = await fetch(SHEET_CSV_URL);
+    if(!res.ok) throw new Error("Sheet fetch failed: " + res.status);
+    const parsed = sheetToBrands(parseCSV(await res.text()));
+    if(parsed){
+      BRANDS = parsed;
+      document.getElementById("dataSource").textContent =
+        "Data: live from your Google Sheet ✓ (" + BRANDS.reduce((n,b)=>n+b.cars.length,0) + " cars)";
+    } else {
+      loadFallback();
+      document.getElementById("dataSource").textContent = "Sheet loaded but empty — using built-in sample";
+    }
+  } catch(err){
+    console.error(err);
+    loadFallback();
+    document.getElementById("dataSource").textContent = "Couldn't reach your Sheet — showing built-in sample";
+  }
+  init();
+}
+
+/* ---------- helpers ---------- */
+const peso = n => "₱" + n.toLocaleString("en-PH");
+function monthlyEstimate(srp){
+  const financed = srp * 0.80;
+  const est = (financed * 1.45) / 60;
+  return Math.round(est / 100) * 100;
+}
+function carSVG(color){
+  return `<svg viewBox="0 0 200 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 62 L30 40 Q34 32 44 32 L120 32 Q132 32 140 40 L168 56 Q182 58 184 64 L184 70 L18 70 Z" fill="${color}"/>
+    <path d="M48 36 L112 36 Q120 36 126 42 L138 54 L52 54 Q46 54 46 48 Z" fill="rgba(255,255,255,.35)"/>
+    <circle cx="58" cy="70" r="13" fill="#1A2233"/><circle cx="58" cy="70" r="6" fill="#fff"/>
+    <circle cx="150" cy="70" r="13" fill="#1A2233"/><circle cx="150" cy="70" r="6" fill="#fff"/>
+  </svg>`;
+}
+const isUnverified = c => !c.priceAsOf || /sample/i.test(c.priceAsOf);
+
+/* ---------- state ---------- */
+let budgetCap = 3000000;
+let bodyFilter = "All";
+const BODY_TYPES = ["All","Hatchback","Sedan","SUV","MPV","Pickup"];
+
+const matches = c => c.srp <= budgetCap && (bodyFilter === "All" || c.body === bodyFilter);
+
+/* ---------- rendering ---------- */
+function renderChips(){
+  const wrap = document.getElementById("bodyChips");
+  wrap.innerHTML = "";
+  BODY_TYPES.forEach(t => {
+    const b = document.createElement("button");
+    b.className = "fchip" + (bodyFilter === t ? " on" : "");
+    b.textContent = t;
+    b.onclick = () => { bodyFilter = t; renderChips(); renderBrands(); };
+    wrap.appendChild(b);
+  });
+}
+
+function renderBrands(){
+  const grid = document.getElementById("brandGrid");
+  grid.innerHTML = "";
+  let shown = 0;
+  BRANDS.forEach((b, i) => {
+    const hits = b.cars.filter(matches);
+    if(!hits.length) return;
+    shown++;
+    const cheapest = Math.min(...hits.map(c => c.srp));
+    const card = document.createElement("div");
+    card.className = "brand-card";
+    card.onclick = () => openBrand(i);
+    card.innerHTML = `
+      <div class="brand-mark" style="background:${b.color}">${b.name[0]}</div>
+      <div class="brand-name">${b.name}</div>
+      <div class="brand-meta">${hits.length} model${hits.length>1?"s":""} · from ${peso(cheapest)}</div>`;
+    grid.appendChild(card);
+  });
+  if(!shown) grid.innerHTML = `<div class="empty">Nothing fits these filters yet. Try raising the budget or choosing another body type.</div>`;
+}
+
+function openBrand(i){
+  const b = BRANDS[i];
+  document.getElementById("brandEyebrow").textContent = b.name;
+  document.getElementById("brandTitle").textContent = "Choose a model";
+  const list = document.getElementById("carList");
+  list.innerHTML = "";
+  const cars = b.cars.filter(matches);
+  if(!cars.length) list.innerHTML = `<div class="empty">No ${b.name} models fit your current filters.</div>`;
+  cars.forEach(c => {
+    const ci = b.cars.indexOf(c);
+    const card = document.createElement("div");
+    card.className = "car-card";
+    card.onclick = () => openCar(i, ci);
+    card.innerHTML = `
+      <div class="car-photo" style="background:linear-gradient(135deg, ${b.color}1A, ${b.color}33)">
+        <span class="car-tag" style="z-index:2">${c.body}</span>
+        ${c.img ? `<img class="card-img" src="${c.img}" alt="">` : carSVG(b.color)}
+      </div>
+      <div class="car-body">
+        <div class="car-name">${b.name} ${c.model}</div>
+        <div class="car-trim">${c.trim}${c.segment ? " · " + c.segment : ""}</div>
+        <div class="car-foot">
+          <div>
+            <div class="srp-label">SRP</div>
+            <div class="srp-val">${peso(c.srp)}</div>
+          </div>
+          <div class="chiprow">
+            ${c.econCity ? `<span class="chip">${c.econCity} km/L city</span>` : ""}
+            <span class="chip">${c.seats}-seater</span>
+          </div>
+        </div>
+      </div>`;
+    list.appendChild(card);
+  });
+  showScreen("brand");
+}
+
+function feat(label, on){
+  return `<div class="feat ${on ? "yes" : "no"}"><b>${on ? "✓" : "✕"}</b> ${label}</div>`;
+}
+
+/* ---------- derived buyer-guidance helpers ---------- */
+const BRAND_VALUE = {
+  "Toyota":["Strong","The resale benchmark — parts and buyers everywhere."],
+  "Mitsubishi":["Strong","Huge service network; family models resell fast."],
+  "Honda":["Strong","Loyal demand keeps used prices firm."],
+  "Isuzu":["Strong","Legendary diesel durability; strong utility demand."],
+  "Suzuki":["Average","Cheap parts and easy servicing; steady small-car demand."],
+  "Nissan":["Average","Established network; used demand is moderate."],
+  "Ford":["Average","Ranger and Everest hold value well; others are average."],
+  "Hyundai":["Average","Long warranty helps; the used market is still growing."],
+  "Kia":["Average","Long warranty helps; the used market is still growing."],
+  "MG":["Newer brand","Aggressive value when new; used market still maturing."]
+};
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+function parkingInfo(c){
+  if(c.body === "Hatchback") return [9,"Easy to park"];
+  if(c.body === "Sedan") return [7,"Easy to park"];
+  if(c.body === "MPV") return [6,"Medium to park"];
+  if(c.body === "Pickup") return [3,"Hard to park"];
+  const seg = (c.segment || "").toLowerCase();
+  if(c.body === "SUV") return (seg.includes("midsize") || seg.includes("3-row") || seg.includes("7-seat")) ? [4,"Hard to park"] : [6,"Medium to park"];
+  return [6,"Medium to park"];
+}
+function beginnerScores(c, brandName){
+  const budget = clamp(Math.round(10 - (c.srp - 600000) / 250000), 1, 10);
+  const [park, parkLabel] = parkingInfo(c);
+  let family = c.seats >= 7 ? 9 : (c.seats >= 5 ? 6 : 3);
+  if(c.isofix && c.airbags >= 6) family = clamp(family + 1, 1, 10);
+  const isEV = /electric/i.test(c.fuel);
+  const fuelS = isEV ? 10 : clamp(Math.round((c.econCity || 10) / 2), 1, 10);
+  const lvl = c.safetyLevel === "Advanced" ? 3 : (c.safetyLevel === "Good" ? 2 : 0);
+  const safety = clamp((c.airbags || 2) + lvl + (c.sc ? 1 : 0), 1, 10);
+  let maint = 8;
+  if(/turbo/i.test(c.fuel) || /turbo/i.test(c.engine || "")) maint -= 1;
+  if(/hybrid|electric/i.test(c.fuel)) maint -= 1;
+  if(c.body === "Pickup" || /midsize/i.test(c.segment || "")) maint -= 1;
+  if(brandName === "MG") maint -= 1;
+  maint = clamp(maint, 1, 10);
+  const overall = Math.round((budget + park + family + fuelS + safety + maint) / 6 * 10) / 10;
+  return {budget, park, parkLabel, family, fuel: fuelS, safety, maint, overall};
+}
+function scoreNote(s){
+  const parts = [["budget friendliness", s.budget],["parking ease", s.park],["family practicality", s.family],["fuel cost", s.fuel],["safety", s.safety],["upkeep cost", s.maint]];
+  parts.sort((a,b) => b[1] - a[1]);
+  return "Strongest on " + parts[0][0] + "; weakest on " + parts[parts.length-1][0] + ". Auto-computed from this car's specs — a guide, not a verdict.";
+}
+function famSafety(c){
+  if(c.airbags >= 6 && c.safetyLevel === "Advanced") return "Excellent";
+  if(c.airbags >= 6) return "Very good";
+  if(c.airbags >= 4 || c.safetyLevel === "Good") return "Good";
+  return "Basic";
+}
+const bar = (l, v) => `<div class="sbar"><span class="sbar-l">${l}</span><span class="sbar-track"><span class="sbar-fill" style="width:${v*10}%"></span></span><span class="sbar-v">${v}</span></div>`;
+
+/* ---------- cost & financing calculator ---------- */
+let CALC = {dp:0.2, years:5, rate:7, km:30, price:65, mode:"city", car:null};
+function runCalc(){
+  const c = CALC.car;
+  const out = document.getElementById("calcOut");
+  if(!c || !out) return;
+  const financed = c.srp * (1 - CALC.dp);
+  const interest = financed * (CALC.rate / 100) * CALC.years;
+  const monthly = (financed + interest) / (CALC.years * 12);
+  const down = c.srp * CALC.dp;
+  const chattel = financed * 0.025;
+  const ins1 = c.srp * 0.03;
+  const fees = 20000;
+  const cashOut = down + chattel + ins1 + fees + monthly;
+  const isEV = /electric/i.test(c.fuel);
+  let econ = c.econCity || 0;
+  if(CALC.mode === "hwy") econ = c.econHwy || econ;
+  if(CALC.mode === "mixed") econ = ((c.econCity || 0) + (c.econHwy || c.econCity || 0)) / 2;
+  const fuelMo = (!isEV && econ) ? (CALC.km * 30 / econ) * CALC.price : 0;
+  const maintMo = (c.body === "Pickup" || /midsize/i.test(c.segment || "")) ? 2500 : ((c.body === "SUV" || c.body === "MPV") ? 2000 : 1500);
+  const trueMo = monthly + fuelMo + maintMo + ins1 / 12;
+  out.innerHTML = `
+    <div class="co-row"><span>Monthly amortization</span><b>${peso(Math.round(monthly))}</b></div>
+    <div class="co-row"><span>Total interest over ${CALC.years} yrs</span><b>${peso(Math.round(interest))}</b></div>
+    <div class="co-row"><span>Total paid over the loan</span><b>${peso(Math.round(down + financed + interest))}</b></div>
+    <div class="co-row"><span>Down + chattel + insurance + LTO/fees + 1st month</span><b></b></div>
+    <div class="co-big"><span>Est. cash-out before release</span><b>${peso(Math.round(cashOut))}</b></div>
+    <div class="co-row" style="margin-top:9px"><span>${isEV ? "Fuel — EV: budget charging instead" : "Fuel (" + CALC.km + " km/day, " + CALC.mode + ")"}</span><b>${isEV ? "—" : peso(Math.round(fuelMo)) + "/mo"}</b></div>
+    <div class="co-row"><span>Maintenance + insurance set-aside</span><b>~${peso(Math.round(maintMo + ins1/12))}/mo</b></div>
+    <div class="co-big"><span>Real monthly cost estimate</span><b>~${peso(Math.round(trueMo))}/mo</b></div>
+    <div class="co-row" style="margin-top:9px"><span>Comfortable household income</span><b>${peso(Math.round(monthly*4/1000)*1000)}–${peso(Math.round(monthly*5/1000)*1000)}/mo</b></div>`;
+}
+function setSeg(g, btn){
+  document.querySelectorAll("[data-" + g + "]").forEach(x => x.classList.remove("on"));
+  btn.classList.add("on");
+}
+function wireCalc(c){
+  CALC = {dp:0.2, years:5, rate:7, km:30, price:/diesel/i.test(c.fuel) ? 62 : 65, mode:"city", car:c};
+  document.querySelectorAll("[data-dp]").forEach(b => b.onclick = () => {CALC.dp = +b.dataset.dp; setSeg("dp", b); runCalc();});
+  document.querySelectorAll("[data-yr]").forEach(b => b.onclick = () => {CALC.years = +b.dataset.yr; setSeg("yr", b); runCalc();});
+  document.querySelectorAll("[data-md]").forEach(b => b.onclick = () => {CALC.mode = b.dataset.md; setSeg("md", b); runCalc();});
+  const r = document.getElementById("rateIn"), k = document.getElementById("kmIn"), p = document.getElementById("priceIn");
+  if(r) r.oninput = () => {CALC.rate = +r.value || 7; runCalc();};
+  if(k) k.oninput = () => {CALC.km = +k.value || 0; runCalc();};
+  if(p) p.oninput = () => {CALC.price = +p.value || 0; runCalc();};
+  runCalc();
+}
+
+function openCar(bi, ci){
+  const b = BRANDS[bi];
+  const c = b.cars[ci];
+  document.getElementById("carBack").onclick = () => openBrand(bi);
+  const unv = isUnverified(c);
+  const s = beginnerScores(c, b.name);
+  const fam = famSafety(c);
+  const [resTag, resNote] = BRAND_VALUE[b.name] || ["Average","Ask owners' groups about local resale."];
+
+  /* other trims of this same model */
+  const siblings = b.cars.map((x, xi) => ({x, xi})).filter(o => o.x.model === c.model && o.xi !== ci);
+  const sibHTML = siblings.length ? `<div class="sect-h">Other ${c.model} trims</div>` + siblings.map(o => {
+    const d = o.x.srp - c.srp;
+    return `<div class="link-row" onclick="openCar(${bi},${o.xi})">
+      <div><div class="lr-name">${o.x.trim}</div><div class="lr-sub">${o.x.airbags} airbags · ${o.x.transmission}</div></div>
+      <div><div class="lr-price">${peso(o.x.srp)}</div><div class="lr-diff ${d >= 0 ? "up" : "down"}">${d >= 0 ? "+₱" : "−₱"}${Math.abs(d).toLocaleString("en-PH")} vs this</div></div>
+    </div>`;
+  }).join("") : "";
+
+  /* cross-brand rivals: same body type, within ~22% of price */
+  let rivals = [];
+  BRANDS.forEach((bb, bbi) => bb.cars.forEach((cc, cci) => {
+    if(bbi === bi && cc.model === c.model) return;
+    if(cc.body !== c.body) return;
+    const diff = Math.abs(cc.srp - c.srp) / c.srp;
+    if(diff <= 0.22) rivals.push({bb, bbi, cc, cci, diff});
+  }));
+  rivals.sort((a, b2) => a.diff - b2.diff);
+  const seen = new Set(); const top = [];
+  for(const r of rivals){
+    const key = r.bb.name + " " + r.cc.model;
+    if(seen.has(key)) continue;
+    seen.add(key); top.push(r);
+    if(top.length >= 4) break;
+  }
+  const rivalHTML = top.length ? `<div class="sect-h">Also compare with</div>` + top.map(r =>
+    `<div class="link-row" onclick="openCar(${r.bbi},${r.cci})">
+      <div><div class="lr-name">${r.bb.name} ${r.cc.model}</div><div class="lr-sub">${r.cc.trim} · ${r.cc.seats} seats · ${r.cc.airbags} airbags</div></div>
+      <div><div class="lr-price">${peso(r.cc.srp)}</div><div class="lr-diff ${r.cc.srp >= c.srp ? "up" : "down"}">${r.cc.srp >= c.srp ? "+₱" : "−₱"}${Math.abs(r.cc.srp - c.srp).toLocaleString("en-PH")}</div></div>
+    </div>`).join("") : "";
+
+  document.getElementById("carDetail").innerHTML = `
+    <div class="detail-hero" style="background:linear-gradient(135deg, ${b.color}22, ${b.color}40)">
+      <span class="car-tag" style="position:absolute; top:12px; left:12px; z-index:2;">${c.body}${c.modelYear ? " · " + c.modelYear : ""}</span>
+      ${c.img ? `<img class="hero-img" src="${c.img}" alt="${b.name} ${c.model}">` : carSVG(b.color)}
+    </div>
+    <div class="detail-name">${b.name} ${c.model}</div>
+    <div class="detail-trim">${c.trim}${c.segment ? " · " + c.segment : ""}</div>
+
+    ${c.advice ? `<div class="advice"><div class="advice-h">✓ Is this for you?</div><p class="advice-p">${c.advice}</p></div>` : ""}
+    ${c.avoidIf ? `<div class="avoid"><div class="avoid-h">Think twice if…</div><p class="avoid-p">${c.avoidIf}</p></div>` : ""}
+
+    <div class="price-box">
+      <div class="srp-label">Suggested Retail Price</div>
+      <div class="price-big">${peso(c.srp)}</div>
+      ${unv ? `<span class="verify-pill warn">⚠ Sample data — confirm with dealer</span>` : `<span class="verify-pill ok">✓ Price as of ${c.priceAsOf}</span>`}
+      <div class="monthly">
+        <span class="monthly-l">Rough monthly (20% down, 5 yrs)</span>
+        <span class="monthly-v">~${peso(monthlyEstimate(c.srp))}/mo</span>
+      </div>
+    </div>
+
+    <div class="sect-h">First-time buyer score</div>
+    <div class="score-box">
+      <div class="score-head">
+        <div class="score-big">${s.overall}<small> / 10 overall</small></div>
+        <span class="fam-label">${s.parkLabel}</span>
+      </div>
+      ${bar("Budget friendliness", s.budget)}
+      ${bar("Parking ease", s.park)}
+      ${bar("Family practicality", s.family)}
+      ${bar("Fuel cost", s.fuel)}
+      ${bar("Safety", s.safety)}
+      ${bar("Upkeep cost", s.maint)}
+      <p class="score-note">${scoreNote(s)}</p>
+    </div>
+
+    <div class="sect-h">Key specs</div>
+    <div class="spec-grid">
+      <div class="spec"><div class="spec-k">Seating</div><div class="spec-v">${c.seats} seats</div></div>
+      <div class="spec"><div class="spec-k">Ground clearance</div><div class="spec-v">${c.clearanceMm ? c.clearanceMm + " mm" : "—"}</div></div>
+      <div class="spec"><div class="spec-k">Transmission</div><div class="spec-v">${c.transmission}</div></div>
+      <div class="spec"><div class="spec-k">Fuel</div><div class="spec-v">${c.fuel}</div></div>
+      ${c.engine ? `<div class="spec"><div class="spec-k">Engine</div><div class="spec-v">${c.engine}</div></div>` : ""}
+      ${c.econCity ? `<div class="spec"><div class="spec-k">Fuel economy (est.)</div><div class="spec-v">${c.econCity} city / ${c.econHwy || "—"} hwy km/L</div></div>` : ""}
+    </div>
+
+    <div class="sect-h">Safety</div>
+    <div class="safety">
+      <div class="safety-top">
+        <div class="safety-air">${c.airbags || "—"} <small>airbags</small></div>
+        <span class="lvl ${c.safetyLevel}">${c.safetyLevel.toUpperCase()}</span>
+      </div>
+      <div class="feat-list">
+        ${feat("Stability control", c.sc)}
+        ${feat("Reverse camera", c.cam)}
+        ${feat("Parking sensors", c.sensors)}
+        ${feat("ISOFIX child anchors", c.isofix)}
+        ${feat("Apple CarPlay", c.carplay)}
+        ${feat("Android Auto", c.aauto)}
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
+        <span class="spec-k">Family safety</span>
+        <span class="fam-label">${fam}</span>
+      </div>
+      ${c.ncap ? `<span class="badge-ncap">★ ${c.ncap}</span>` : ""}
+    </div>
+
+    <div class="sect-h">Cost & financing calculator</div>
+    <div class="calc">
+      <div class="calc-l">Down payment</div>
+      <div class="seg">
+        <button data-dp="0.2" class="on">20%</button><button data-dp="0.3">30%</button><button data-dp="0.4">40%</button><button data-dp="0.5">50%</button>
+      </div>
+      <div class="calc-row"><div class="calc-l">Loan term</div>
+        <div class="seg"><button data-yr="3">3 yrs</button><button data-yr="4">4 yrs</button><button data-yr="5" class="on">5 yrs</button></div>
+      </div>
+      <div class="calc-row"><div class="calc-l">Bank add-on rate, % per year (typical 5–8%)</div>
+        <input id="rateIn" type="number" value="7" min="3" max="15" step="0.5">
+      </div>
+      <div class="calc-row"><div class="calc-l">Km per day · Fuel price per liter</div>
+        <div style="display:flex; gap:8px;">
+          <input id="kmIn" type="number" value="30" min="0">
+          <input id="priceIn" type="number" value="${/diesel/i.test(c.fuel) ? 62 : 65}" min="0">
+        </div>
+      </div>
+      <div class="calc-row"><div class="calc-l">Driving mix</div>
+        <div class="seg"><button data-md="city" class="on">City</button><button data-md="mixed">Mixed</button><button data-md="hwy">Highway</button></div>
+      </div>
+      <div class="calc-out" id="calcOut"></div>
+      <p class="calc-note">Estimates only. Uses typical figures: chattel mortgage ~2.5% of the loan, first-year comprehensive insurance ~3% of SRP, ₱20,000 LTO/processing, and a monthly maintenance set-aside. Banks and dealers compute differently — always request the official computation sheet in writing.</p>
+    </div>
+
+    ${sibHTML}
+    ${rivalHTML}
+
+    ${c.warrantyYears ? `
+    <div class="sect-h">Warranty</div>
+    <div class="spec"><div class="spec-k">Factory warranty</div>
+      <div class="spec-v">${c.warrantyYears} years / ${c.warrantyKm ? c.warrantyKm.toLocaleString("en-PH") + " km" : "—"}</div>
+    </div>` : ""}
+
+    <div class="sect-h">Long-term value</div>
+    <div class="score-box">
+      <div class="score-head"><span class="lr-name">Brand resale reputation</span><span class="fam-label">${resTag}</span></div>
+      <p class="score-note">${resNote} This reflects general brand reputation only — actual resale depends on condition, mileage, and timing.</p>
+    </div>
+
+    <div class="sect-h">Before you sign anything</div>
+    <details class="acc"><summary>Ask the dealer these questions</summary><div class="acc-body"><ul>
+      <li>Is this the latest SRP — in writing?</li>
+      <li>Is insurance included? Which coverage?</li>
+      <li>Is LTO registration included?</li>
+      <li>Is the chattel mortgage fee included?</li>
+      <li>What is the exact total cash-out?</li>
+      <li>What is the exact monthly amortization?</li>
+      <li>Any dealer discounts or freebies?</li>
+      <li>Is the unit available now, and in what colors?</li>
+      <li>How long is the waiting time?</li>
+      <li>How long is this quote valid?</li>
+    </ul></div></details>
+    <details class="acc"><summary>Documents you'll need</summary><div class="acc-body">
+      <b>If financing:</b><ul>
+      <li>2 valid government IDs</li>
+      <li>Proof of billing</li>
+      <li>Certificate of employment + latest payslips</li>
+      <li>Latest ITR or bank statements</li>
+      <li>DTI/business permit if self-employed</li></ul>
+      <b style="display:block; margin-top:8px;">If paying cash:</b><ul>
+      <li>2 valid IDs and proof of payment</li></ul>
+    </div></details>
+
+    <div class="sect-h">Where to buy</div>
+    <div class="where">
+      <div class="where-h">📍 Availability</div>
+      <div class="where-p">${c.where}</div>
+      <a class="where-link" href="${c.link}" target="_blank" rel="noopener">Visit official site →</a>
+    </div>
+
+    <div class="tip">
+      <b>First-timer tip:</b> The SRP isn't the final cost. Use the calculator above, then ask the dealer for the full "all-in" or "total cash out" computation and compare.
+    </div>
+
+    <p class="disclaimer">Specs, prices, scores, and estimates shown may be sample data or out of date — always confirm with an official dealer before deciding. Scores are computed automatically from listed specs. Calculator figures are illustrative only and not a loan offer.</p>
+  `;
+  wireCalc(c);
+  showScreen("car");
+  window.scrollTo(0, 0);
+}
+
+/* ---------- navigation & controls ---------- */
+function showScreen(name){
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById("screen-" + name).classList.add("active");
+}
+function goHome(){ showScreen("home"); window.scrollTo(0,0); }
+
+document.getElementById("budgetRange").addEventListener("input", e => {
+  budgetCap = +e.target.value;
+  document.getElementById("budgetVal").textContent = peso(budgetCap);
+  renderBrands();
+});
+
+document.getElementById("searchInput").addEventListener("input", e => {
+  const q = e.target.value.trim().toLowerCase();
+  if(!q){ goHome(); renderBrands(); return; }
+  for(let i = 0; i < BRANDS.length; i++){
+    const match = BRANDS[i].cars.find(c => (BRANDS[i].name + " " + c.model + " " + c.trim).toLowerCase().includes(q));
+    if(match){ openBrand(i); return; }
+  }
+});
+
+function init(){ renderChips(); renderBrands(); }
+loadData();
+
+/* ---------- PWA: service worker for installability + offline ---------- */
+if("serviceWorker" in navigator){
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(err => console.log("SW registration skipped:", err));
+  });
+}
+</script>
+</body>
+</html>
