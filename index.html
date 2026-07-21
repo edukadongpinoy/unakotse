@@ -281,10 +281,17 @@
   .badge-ncap{display:inline-block; margin-top:10px; font-size:11px; font-weight:700; background:#DFF5EA; color:#0E6B47; padding:5px 10px; border-radius:8px;}
   .fam-label{font-size:11px; font-weight:700; padding:5px 11px; border-radius:9px; background:#E8EDFF; color:#11317F;}
 
+  #toast{position:fixed; left:50%; bottom:38px; transform:translateX(-50%) translateY(10px);
+         background:rgba(14,27,51,.94); color:#fff; font-family:var(--body); font-size:13px; font-weight:500;
+         padding:11px 20px; border-radius:22px; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s;
+         z-index:999; box-shadow:0 6px 24px rgba(0,0,0,.28); max-width:80%; text-align:center;}
+  #toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
   /* ---------- v5: photo support ---------- */
   .car-photo{overflow:hidden;}
   .detail-hero{overflow:hidden;}
-  .hero-img, .card-img{width:100%; height:100%; object-fit:cover; display:block;}
+  .card-img{width:100%; height:100%; object-fit:cover; display:block;}
+  .hero-img{width:100%; height:100%; object-fit:contain; display:block; padding:10px; background:#F4F6FB;}
 
   .where{
     background:var(--card); border:1px solid var(--line); border-radius:16px;
@@ -513,7 +520,7 @@ BYD,#004C97,eMAX 7,Standard,2026,EV MPV,MPV,1748000,SAMPLE,7,170,Automatic,Elect
    File → Share → Publish to web → your tab → CSV → copy URL below.
    Leave empty ("") to use the built-in fallback database.
    ================================================================ */
-const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQW-hee3F1Mq23tjVMvxaa60xq6mkZNc0YMQC6SuftDxlSvjk-U6R4V3HOjDgGxp0toGIJyVlYL15LY/pub?gid=391578380&single=true&output=csv";
+const SHEET_CSV_URL = "";
 
 const BRAND_COLORS = {
   "Toyota":"#E11B22","Mitsubishi":"#E60012","Honda":"#1A1A1A","Suzuki":"#0B57A4",
@@ -733,7 +740,7 @@ function openBrand(i){
       </div>`;
     list.appendChild(card);
   });
-  showScreen("brand");
+  goDeeper("brand");
 }
 
 function feat(label, on){
@@ -1028,16 +1035,44 @@ function openCar(bi, ci){
     <p class="disclaimer">Specs, prices, scores, and estimates shown may be sample data or out of date — always confirm with an official dealer before deciding. Scores are computed automatically from listed specs. Calculator figures are illustrative only and not a loan offer.</p>
   `;
   wireCalc(c);
-  showScreen("car");
+  goDeeper("car");
   window.scrollTo(0, 0);
 }
 
 /* ---------- navigation & controls ---------- */
+let CURRENT_SCREEN = "home";
 function showScreen(name){
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   document.getElementById("screen-" + name).classList.add("active");
+  CURRENT_SCREEN = name;
+}
+function goDeeper(name){
+  showScreen(name);
+  history.pushState({ screen: name }, "");
 }
 function goHome(){ showScreen("home"); window.scrollTo(0,0); }
+
+let EXIT_ARMED = false;
+window.addEventListener("popstate", () => {
+  if(CURRENT_SCREEN !== "home"){
+    showScreen("home");
+    window.scrollTo(0, 0);
+  } else {
+    if(EXIT_ARMED){ EXIT_ARMED = false; history.back(); return; }
+    EXIT_ARMED = true;
+    showToast("Press back again to exit");
+    history.pushState({ screen: "home" }, "");
+    setTimeout(() => { EXIT_ARMED = false; }, 2000);
+  }
+});
+function showToast(msg){
+  let t = document.getElementById("toast");
+  if(!t){ t = document.createElement("div"); t.id = "toast"; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => t.classList.remove("show"), 1800);
+}
 
 document.getElementById("budgetRange").addEventListener("input", e => {
   budgetCap = +e.target.value;
@@ -1054,7 +1089,7 @@ document.getElementById("searchInput").addEventListener("input", e => {
   }
 });
 
-function init(){ renderChips(); renderBrands(); }
+function init(){ renderChips(); renderBrands(); history.replaceState({ screen: "home" }, ""); }
 loadData();
 
 /* ---------- PWA: service worker for installability + offline ---------- */
